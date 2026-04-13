@@ -190,6 +190,51 @@ def mcp(
 
 
 @app.command()
+def tui(
+    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
+    model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model to use"),
+    provider: str = typer.Option(
+        "auto", "--provider", help="LLM provider (openai, anthropic, ollama)"
+    ),
+) -> None:
+    """Launch the interactive TUI for design sessions.
+
+    The TUI provides an interactive terminal interface with:
+    - Real-time design chat
+    - Live preview display
+    - Session management
+    - Iteration tracking
+    """
+    from .tui import run_tui
+
+    project_dir = project or os.environ.get("CADAI_PROJECT_DIR", "./projects")
+    project_path = Path(project_dir)
+
+    if not project_path.exists():
+        display_warning(f"Project directory '{project_dir}' does not exist.")
+        create_new = typer.confirm("Create it?", default=True)
+        if create_new:
+            project_path.mkdir(parents=True, exist_ok=True)
+            display_success(f"Created {project_dir}")
+        else:
+            raise typer.Exit(1)
+
+    try:
+        run_tui(
+            project_path=project_path,
+            model=model,
+            provider=provider,
+        )
+    except ImportError as e:
+        display_error(f"TUI requires textual: {str(e)}")
+        display_info("Install with: pip install textual")
+        raise typer.Exit(1)
+    except Exception as e:
+        display_error(f"TUI error: {str(e)}")
+        raise typer.Exit(1)
+
+
+@app.command()
 def export(
     design_name: str = typer.Argument(..., help="Name of the design to export"),
     format: str = typer.Option("stl", "--format", "-f", help="Export format (step, stl, glb)"),
@@ -345,11 +390,18 @@ def help_cmd() -> None:
 ## Commands
 - `init <name>` - Create a new project
 - `design [prompt]` - Run a design session
+- `tui` - Launch interactive TUI
 - `export <name>` - Export a design
 - `history` - View version history
 - `tools` - List all CAD tools
 - `models` - List available LLM models
 - `mcp` - Manage MCP server
+
+## TUI Mode
+Launch the interactive terminal UI:
+```bash
+cadai tui
+```
 
 ## MCP Server
 Start the MCP server to use CadAI tools from AI clients:
