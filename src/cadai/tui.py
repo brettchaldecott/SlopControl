@@ -183,10 +183,20 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
         self.sub_title = f"Project: {self.project_path.name}"
         self._log("[cyan]Welcome to CadAI![/cyan]")
         self._log("[dim]Type your design request and press Enter[/dim]")
-        self._log("[dim]Use F1 for help, Ctrl+C to quit[/dim]")
+        self._log("[dim]Commands: help, clear, quit[/dim]")
         self._log("")
 
         self._update_status(f"Model: {self.model}")
+
+        input_widget = self.query_one("#command-input", Input)
+        input_widget.focus()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        """Handle input submission."""
+        command = event.value.strip()
+        if command:
+            asyncio.create_task(self._process_command(command))
+            event.input.value = ""
 
     def _log(self, message: str) -> None:
         """Log a message to the log area.
