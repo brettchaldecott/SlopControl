@@ -395,10 +395,10 @@ def union_bodies(
     Returns:
         JSON-serialized body object
     """
-    import json
+    from ..utils.cad_helpers import deserialize_body
 
-    data1 = json.loads(body1_data)
-    data2 = json.loads(body2_data)
+    data1 = deserialize_body(body1_data)
+    data2 = deserialize_body(body2_data)
 
     result = data1["body"] + data2["body"]
     return _body_to_dict(
@@ -420,10 +420,10 @@ def cut_body(
     Returns:
         JSON-serialized body object
     """
-    import json
+    from ..utils.cad_helpers import deserialize_body
 
-    data1 = json.loads(body1_data)
-    data2 = json.loads(body2_data)
+    data1 = deserialize_body(body1_data)
+    data2 = deserialize_body(body2_data)
 
     result = data1["body"] - data2["body"]
     return _body_to_dict(
@@ -445,10 +445,10 @@ def intersect_bodies(
     Returns:
         JSON-serialized body object
     """
-    import json
+    from ..utils.cad_helpers import deserialize_body
 
-    data1 = json.loads(body1_data)
-    data2 = json.loads(body2_data)
+    data1 = deserialize_body(body1_data)
+    data2 = deserialize_body(body2_data)
 
     result = data1["body"] & data2["body"]
     return _body_to_dict(
