@@ -85,6 +85,9 @@ def design(
     ),
     interactive: bool = typer.Option(True, "--interactive/--headless", help="Interactive mode"),
     stream: bool = typer.Option(True, "--stream/--no-stream", help="Stream responses"),
+    auto_preview: bool = typer.Option(
+        True, "--auto-preview/--no-preview", help="Auto-display previews"
+    ),
 ) -> None:
     """Run a design session with the CAD agent."""
     console.print(
@@ -110,7 +113,8 @@ def design(
         prompt = typer.prompt("", default="Create a simple 50mm cube")
 
     console.print(f"\n[dim]Model: {model or 'auto'}[/dim]")
-    console.print(f"[dim]Project: {project_dir}[/dim]\n")
+    console.print(f"[dim]Project: {project_dir}[/dim]")
+    console.print(f"[dim]Auto-preview: {'enabled' if auto_preview else 'disabled'}[/dim]\n")
 
     try:
         result = run_design_session(
@@ -140,6 +144,48 @@ def design(
         display_error(f"Error: {str(e)}")
         if os.environ.get("CADAI_DEBUG"):
             raise
+        raise typer.Exit(1)
+
+
+@app.command()
+def mcp(
+    action: str = typer.Argument("start", help="Action: start, stop, status"),
+    port: int = typer.Option(8765, "--port", "-p", help="Port for MCP server"),
+    transport: str = typer.Option("stdio", "--transport", "-t", help="Transport type (stdio, sse)"),
+) -> None:
+    """Manage the CadAI MCP server.
+
+    Use this to start an MCP server that exposes CAD tools to AI clients.
+    """
+    if action == "start":
+        try:
+            from .mcp.server import create_mcp_server
+            import asyncio
+
+            display_info(f"Starting MCP server on port {port}...")
+            display_info(f"Transport: {transport}")
+
+            server = create_mcp_server()
+            asyncio.run(server.run(transport=transport))
+
+        except ImportError:
+            display_error("MCP is not installed. Install with: pip install mcp")
+            raise typer.Exit(1)
+        except Exception as e:
+            display_error(f"Failed to start MCP server: {str(e)}")
+            raise typer.Exit(1)
+
+    elif action == "status":
+        display_info("MCP server status: Use 'cadai mcp start' to start the server")
+        console.print("\n[dim]MCP Configuration:[/dim]")
+        console.print("  Add to your AI client config:")
+        console.print('  { "cadai": { "command": "cadai", "args": ["mcp", "start"] } }')
+
+    elif action == "stop":
+        display_info("Stop the MCP server by pressing Ctrl+C")
+
+    else:
+        display_error(f"Unknown action: {action}")
         raise typer.Exit(1)
 
 
@@ -230,6 +276,61 @@ def history(
 
 
 @app.command()
+def tools() -> None:
+    """List all available CAD tools."""
+    from .mcp.tools import CAD_MCP_TOOLS
+
+    console.print("\n[bold cyan]Available CadAI Tools:[/bold cyan]\n")
+
+    categories = {
+        "Shapes": ["create_box", "create_cylinder", "create_sphere"],
+        "Sketches": ["create_rect", "create_circle", "create_ellipse", "create_polygon"],
+        "Operations": [
+            "extrude_sketch",
+            "revolve_sketch",
+            "add_fillet",
+            "add_chamfer",
+            "create_shell",
+            "mirror_body",
+        ],
+        "Booleans": ["union_bodies", "cut_body", "intersect_bodies"],
+        "Export": ["export_model", "get_body_info"],
+        "Visualization": [
+            "render_preview",
+            "display_preview",
+            "display_multiview",
+            "get_model_info_detailed",
+            "compare_designs",
+        ],
+        "Git": [
+            "commit_design",
+            "get_design_history",
+            "restore_version",
+            "create_experiment_branch",
+            "merge_experiment",
+            "init_git_repo",
+        ],
+        "File Operations": [
+            "save_design_state",
+            "load_design_state",
+            "list_designs",
+            "create_project",
+            "delete_design",
+        ],
+    }
+
+    for category, tool_names in categories.items():
+        console.print(f"[bold cyan]{category}:[/bold cyan]")
+        for tool_name in tool_names:
+            for tool in CAD_MCP_TOOLS:
+                if tool.name == tool_name:
+                    desc = tool.description.split("\n")[0][:60] if tool.description else ""
+                    console.print(f"  [green]{tool_name}[/green] - {desc}")
+                    break
+        console.print()
+
+
+@app.command()
 def help_cmd() -> None:
     """Show help and usage information."""
     console.print(
@@ -246,7 +347,15 @@ def help_cmd() -> None:
 - `design [prompt]` - Run a design session
 - `export <name>` - Export a design
 - `history` - View version history
+- `tools` - List all CAD tools
 - `models` - List available LLM models
+- `mcp` - Manage MCP server
+
+## MCP Server
+Start the MCP server to use CadAI tools from AI clients:
+```bash
+cadai mcp start
+```
 
 ## Environment Variables
 - `CADAI_MODEL` - Default LLM model

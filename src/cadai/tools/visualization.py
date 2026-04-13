@@ -7,6 +7,9 @@ from typing import Optional
 
 from langchain_core.tools import tool
 
+from ..utils.cad_helpers import deserialize_body
+from ..utils.terminal_display import display_preview_panel, display_multiview_previews
+
 try:
     from llmcad import snapshot
     from PIL import Image
@@ -31,6 +34,9 @@ def render_preview(
 ) -> str:
     """Render a multi-view preview image of a CAD body.
 
+    Renders views from multiple angles: front, back, left, right, top, bottom, and isometric.
+    The image is saved as a PNG file and can be displayed using display_preview.
+
     Args:
         body_data: JSON data containing the body
         filename: Output filename (without extension)
@@ -42,7 +48,6 @@ def render_preview(
         Path to the rendered PNG image
     """
     import json
-    from ..utils.cad_helpers import deserialize_body
 
     _check_llmcad()
 
@@ -70,42 +75,62 @@ def render_preview(
 
 
 @tool
-def display_preview_in_terminal(image_path: str) -> str:
-    """Display a preview image in the terminal using ANSI escape codes.
+def display_preview(
+    image_path: str,
+    title: str = "Preview",
+    max_height: int = 30,
+) -> str:
+    """Display a preview image in the terminal using ASCII art.
 
     Args:
         image_path: Path to the PNG image
+        title: Title to display above the preview
+        max_height: Maximum height for ASCII display (default 30 lines)
+
+    Returns:
+        Confirmation message with image path
+    """
+    _check_llmcad()
+
+    img_path = Path(image_path)
+
+    if not img_path.exists():
+        return f"Error: Image not found at {image_path}"
+
+    display_preview_panel(str(img_path), title=title, max_height=max_height)
+
+    return f"Displayed preview: {image_path}"
+
+
+@tool
+def display_multiview(
+    preview_path: str,
+    views: Optional[str] = None,
+) -> str:
+    """Display multiple preview views in a table format.
+
+    Args:
+        preview_path: Path to the multi-view preview image
+        views: Optional comma-separated list of specific views to display
 
     Returns:
         Confirmation message
     """
     _check_llmcad()
 
-    img_path = Path(image_path)
+    img_path = Path(preview_path)
+
     if not img_path.exists():
-        return f"Error: Image not found at {image_path}"
+        return f"Error: Preview image not found at {preview_path}"
 
-    try:
-        img = Image.open(img_path)
+    view_names = views.split(",") if views else ["front", "right", "top", "iso"]
 
-        max_width = 120
-        max_height = 40
+    display_multiview_previews(
+        {name.strip(): str(img_path) for name in view_names},
+        title="Multi-View Preview",
+    )
 
-        img_ratio = img.width / img.height
-        if img.width > max_width:
-            new_width = max_width
-            new_height = int(max_width / img_ratio)
-            img = img.resize((new_width, new_height))
-        if img.height > max_height:
-            new_height = max_height
-            new_width = int(max_height * img_ratio)
-            img = img.resize((new_width, new_height))
-
-        img_path_str = str(img_path.absolute())
-        return f"[Preview image available at: {img_path_str}]"
-
-    except Exception as e:
-        return f"Error displaying image: {str(e)}"
+    return f"Displayed multi-view preview: {preview_path}"
 
 
 @tool
@@ -127,14 +152,13 @@ def get_model_info_detailed(body_data: str) -> str:
     info = get_model_info(body)
 
     lines = [
-        f"Model: {data.get('name', 'unnamed')}",
-        "=" * 40,
-        "Dimensions:",
+        f"[bold cyan]Model:[/bold cyan] {data.get('name', 'unnamed')}",
+        "[bold]Dimensions:[/bold]",
         f"  Width:  {info.get('dimensions', {}).get('width', 'N/A'):.2f} mm",
         f"  Height: {info.get('dimensions', {}).get('height', 'N/A'):.2f} mm",
         f"  Depth:  {info.get('dimensions', {}).get('depth', 'N/A'):.2f} mm",
         "",
-        "Properties:",
+        "[bold]Properties:[/bold]",
         f"  Volume:       {info.get('volume', 'N/A'):.2f} mm³",
         f"  Surface Area: {info.get('surface_area', 'N/A'):.2f} mm²",
         f"  Faces:        {info.get('face_count', 'N/A')}",
@@ -144,8 +168,81 @@ def get_model_info_detailed(body_data: str) -> str:
     return "\n".join(lines)
 
 
+@tool
+def compare_designs(
+    design1_path: str,
+    design2_path: str,
+    output_path: Optional[str] = None,
+) -> str:
+    """Compare two designs and highlight differences.
+
+    Args:
+        design1_path: Path to first design (older version)
+        design2_path: Path to second design (newer version)
+        output_path: Optional path for comparison output
+
+    Returns:
+        Comparison result with dimension differences
+    """
+    import json
+    from ..utils.cad_helpers import get_model_info, deserialize_body
+
+    try:
+        with open(design1_path) as f:
+            data1 = json.load(f)
+        with open(design2_path) as f:
+            data2 = json.load(f)
+    except Exception as e:
+        return f"Error loading designs: {str(e)}"
+
+    body1 = deserialize_body(json.dumps(data1))["body"]
+    body2 = deserialize_body(json.dumps(data2))["body"]
+
+    info1 = get_model_info(body1)
+    info2 = get_model_info(body2)
+
+    dims1 = info1.get("dimensions", {})
+    dims2 = info2.get("dimensions", {})
+
+    lines = [
+        "[bold cyan]Design Comparison[/bold cyan]",
+        "=" * 40,
+        "",
+        "[bold]Design 1:[/bold] {}\n[bold]Design 2:[/bold] {}".format(
+            data1.get("name", "unnamed"),
+            data2.get("name", "unnamed"),
+        ),
+        "",
+        "[bold]Dimension Changes:[/bold]",
+    ]
+
+    for dim in ["width", "height", "depth"]:
+        val1 = dims1.get(dim, 0)
+        val2 = dims2.get(dim, 0)
+        diff = val2 - val1
+        if abs(diff) > 0.01:
+            sign = "+" if diff > 0 else ""
+            lines.append(f"  {dim.capitalize()}: {val1:.2f} → {val2:.2f} ({sign}{diff:.2f} mm)")
+        else:
+            lines.append(f"  {dim.capitalize()}: {val1:.2f} mm (unchanged)")
+
+    vol1 = info1.get("volume", 0)
+    vol2 = info2.get("volume", 0)
+    vol_diff = vol2 - vol1
+    lines.extend(
+        [
+            "",
+            f"[bold]Volume:[/bold] {vol1:.2f} → {vol2:.2f} mm³ ({'+' if vol_diff > 0 else ''}{vol_diff:.2f})",
+        ]
+    )
+
+    return "\n".join(lines)
+
+
 VISUALIZATION_TOOLS = [
     render_preview,
-    display_preview_in_terminal,
+    display_preview,
+    display_multiview,
     get_model_info_detailed,
+    compare_designs,
 ]

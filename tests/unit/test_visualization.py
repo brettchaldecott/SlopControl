@@ -13,10 +13,22 @@ class TestVisualizationTools:
         assert render_preview is not None
 
     def test_display_preview_exists(self):
-        """Test display_preview_in_terminal tool exists."""
-        from cadai.tools.visualization import display_preview_in_terminal
+        """Test display_preview tool exists."""
+        from cadai.tools.visualization import display_preview
 
-        assert display_preview_in_terminal is not None
+        assert display_preview is not None
+
+    def test_display_multiview_exists(self):
+        """Test display_multiview tool exists."""
+        from cadai.tools.visualization import display_multiview
+
+        assert display_multiview is not None
+
+    def test_compare_designs_exists(self):
+        """Test compare_designs tool exists."""
+        from cadai.tools.visualization import compare_designs
+
+        assert compare_designs is not None
 
     def test_get_info_exists(self):
         """Test get_model_info_detailed tool exists."""
@@ -30,8 +42,10 @@ class TestVisualizationTools:
 
         expected_tools = [
             "render_preview",
-            "display_preview_in_terminal",
+            "display_preview",
+            "display_multiview",
             "get_model_info_detailed",
+            "compare_designs",
         ]
 
         tool_names = [t.name for t in VISUALIZATION_TOOLS]
