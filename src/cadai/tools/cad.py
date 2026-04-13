@@ -12,6 +12,7 @@ from llmcad import (
     Polygon,
     Text,
     Sketch,
+    Body,
     extrude,
     revolve,
     loft,
@@ -21,14 +22,10 @@ from llmcad import (
     shell,
     split,
     mirror,
-    union as llmcad_union,
-    difference,
-    intersection,
     export_step,
     export_stl,
     export_glb,
 )
-from llmcad._common import Body
 
 from ..utils.cad_helpers import serialize_body, get_model_info
 
@@ -265,9 +262,15 @@ def add_fillet(
         )
         result = fillet(all_edges, radius=radius)
     elif edges:
-        face = getattr(body, edges.split(".")[0], None)
+        parts = edges.split(".")
+        face = getattr(body, parts[0], None)
         if face:
-            result = fillet(face.edges, radius=radius)
+            if len(parts) > 1:
+                face = getattr(face, parts[1], None)
+            if face and hasattr(face, "edges"):
+                result = fillet(face.edges, radius=radius)
+            else:
+                result = body
         else:
             result = body
     else:
@@ -308,9 +311,15 @@ def add_chamfer(
         )
         result = chamfer(all_edges, distance=distance)
     elif edges:
-        face = getattr(body, edges.split(".")[0], None)
+        parts = edges.split(".")
+        face = getattr(body, parts[0], None)
         if face:
-            result = chamfer(face.edges, distance=distance)
+            if len(parts) > 1:
+                face = getattr(face, parts[1], None)
+            if face and hasattr(face, "edges"):
+                result = chamfer(face.edges, distance=distance)
+            else:
+                result = body
         else:
             result = body
     else:
@@ -377,7 +386,7 @@ def union_bodies(
     body1_data: str,
     body2_data: str,
 ) -> str:
-    """Unite (merge) two bodies together.
+    """Unite (merge) two bodies together using the + operator.
 
     Args:
         body1_data: JSON data containing the first body
@@ -391,7 +400,7 @@ def union_bodies(
     data1 = json.loads(body1_data)
     data2 = json.loads(body2_data)
 
-    result = llmcad_union(data1["body"], data2["body"])
+    result = data1["body"] + data2["body"]
     return _body_to_dict(
         {"body": result, "name": f"{data1.get('name', 'b1')}_union_{data2.get('name', 'b2')}"}
     )
@@ -402,7 +411,7 @@ def cut_body(
     body1_data: str,
     body2_data: str,
 ) -> str:
-    """Cut body2 from body1 (boolean subtraction).
+    """Cut body2 from body1 using the - operator (boolean subtraction).
 
     Args:
         body1_data: JSON data containing the base body
@@ -416,7 +425,7 @@ def cut_body(
     data1 = json.loads(body1_data)
     data2 = json.loads(body2_data)
 
-    result = difference(data1["body"], data2["body"])
+    result = data1["body"] - data2["body"]
     return _body_to_dict(
         {"body": result, "name": f"{data1.get('name', 'b1')}_cut_{data2.get('name', 'b2')}"}
     )
@@ -427,7 +436,7 @@ def intersect_bodies(
     body1_data: str,
     body2_data: str,
 ) -> str:
-    """Intersect two bodies (keep only overlapping volume).
+    """Intersect two bodies using the & operator (keep only overlapping volume).
 
     Args:
         body1_data: JSON data containing the first body
@@ -441,7 +450,7 @@ def intersect_bodies(
     data1 = json.loads(body1_data)
     data2 = json.loads(body2_data)
 
-    result = intersection(data1["body"], data2["body"])
+    result = data1["body"] & data2["body"]
     return _body_to_dict(
         {"body": result, "name": f"{data1.get('name', 'b1')}_intersect_{data2.get('name', 'b2')}"}
     )
