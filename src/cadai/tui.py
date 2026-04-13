@@ -65,51 +65,29 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
         background: $surface;
     }
 
-    # main-container {
-        height: 100%;
-        layout: vertical;
-    }
-
-    # header-area {
-        height: auto;
+    #sidebar {
+        width: 28;
+        border: solid $border;
         padding: 1;
     }
 
-    # content-area {
-        height: 1fr;
-        layout: horizontal;
-    }
-
-    # sidebar {
-        width: 30;
+    #main-panel {
         border: solid $border;
     }
 
-    # main-panel {
-        width: 1fr;
-        border: solid $border;
-    }
-
-    # input-area {
-        height: auto;
-        padding: 1;
-    }
-
-    # preview-area {
-        width: 1fr;
+    #preview-area {
         border: solid $accent;
         background: $surface-darken-1;
-    }
-
-    Static.title {
-        text-style: bold;
-        color: $accent;
-    }
-
-    # status-bar {
-        height: auto;
         padding: 1;
+    }
+
+    #status-bar {
         background: $surface-darken-2;
+        padding: 1;
+    }
+
+    Button {
+        margin: 1 0;
     }
     """
 

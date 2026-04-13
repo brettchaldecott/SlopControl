@@ -71,7 +71,7 @@ cadai design
     display_success(f"Created project '{project_name}' at {project_path}")
 
     if git:
-        result = init_git_repo(str(project_path))
+        result = init_git_repo.invoke({"project_path": str(project_path)})
         display_success(result)
 
 
