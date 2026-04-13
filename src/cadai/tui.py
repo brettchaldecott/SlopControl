@@ -143,19 +143,22 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
                     yield Button("New Session", id="btn-new", variant="primary")
                     yield Button("Load Session", id="btn-load")
                     yield Button("Save", id="btn-save")
-                    yield Static("", height=1)
+
+                    yield Static("")
 
                     yield Static("[bold]Design[/bold]")
                     yield Button("Render Preview", id="btn-render")
                     yield Button("Toggle Preview", id="btn-toggle-preview")
                     yield Button("Export STL", id="btn-export-stl")
                     yield Button("Export STEP", id="btn-export-step")
-                    yield Static("", height=1)
+
+                    yield Static("")
 
                     yield Static("[bold]History[/bold]")
                     yield Button("View History", id="btn-history")
                     yield Button("Compare Versions", id="btn-compare")
-                    yield Static("", height=1)
+
+                    yield Static("")
 
                     yield Static("[bold]Iteration[/bold]")
                     yield Static("", id="iteration-display")
