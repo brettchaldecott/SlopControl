@@ -115,7 +115,7 @@ def _create_model(provider: str, model: str) -> BaseChatModel:
         )
 
     elif provider == "opencode":
-        base_url = os.environ.get("OPENCODE_API_URL", "https://api.opencode.ai/v1")
+        base_url = os.environ.get("OPENCODE_API_URL", "https://opencode.ai/zen/v1")
         api_key = os.environ.get("OPENCODE_API_KEY")
         return ChatOpenAI(
             model=model,
