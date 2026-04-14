@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 import typer
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
@@ -18,6 +19,8 @@ from .utils.terminal import (
     display_info,
     display_warning,
 )
+
+load_dotenv()
 
 app = typer.Typer(
     name="cadai",

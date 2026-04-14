@@ -44,7 +44,7 @@ def create_cad_agent(
         >>> result = agent.invoke({"messages": [("user", "Create a 50mm cube")]})
     """
     if model is None:
-        model = os.environ.get("CADAI_MODEL", "openai:gpt-4o")
+        model = os.environ.get("CADAI_MODEL", "opencode:big-pickle")
 
     if isinstance(model, str):
         chat_model = get_model(model, provider=provider)
