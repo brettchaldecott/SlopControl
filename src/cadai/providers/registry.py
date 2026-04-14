@@ -58,7 +58,7 @@ def get_model(
         Configured chat model
     """
     if model is None:
-        model = os.environ.get("CADAI_MODEL", "openai:gpt-4o")
+        model = os.environ.get("CADAI_MODEL", "opencode:big-pickle")
 
     if ":" in model:
         parsed_provider, parsed_model = parse_model_string(model)
