@@ -1,0 +1,49 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# CAD exports
+*.stl
+*.step
+*.glb
+*.iges
+*.igs
+
+# Previews
+previews/
+*.png
+*.jpg
+
+# Projects (local)
+projects/
+
+# OS
+.DS_Store
+Thumbs.db
