@@ -118,7 +118,7 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
 
         super().__init__()
         self.project_path = project_path
-        self.model = model or "openai:gpt-4o"
+        self.model = model or "opencode:big-pickle"
         self.provider = provider
         self.session_manager = SessionManager(project_path)
         self.design_history = DesignHistory(project_path)

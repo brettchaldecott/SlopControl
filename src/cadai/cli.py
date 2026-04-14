@@ -81,7 +81,7 @@ def design(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model to use"),
     provider: str = typer.Option(
-        "auto", "--provider", help="LLM provider (openai, anthropic, ollama)"
+        "auto", "--provider", help="LLM provider (openai, anthropic, ollama, opencode)"
     ),
     interactive: bool = typer.Option(True, "--interactive/--headless", help="Interactive mode"),
     stream: bool = typer.Option(True, "--stream/--no-stream", help="Stream responses"),
@@ -194,7 +194,7 @@ def tui(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model to use"),
     provider: str = typer.Option(
-        "auto", "--provider", help="LLM provider (openai, anthropic, ollama)"
+        "auto", "--provider", help="LLM provider (openai, anthropic, ollama, opencode)"
     ),
 ) -> None:
     """Launch the interactive TUI for design sessions.

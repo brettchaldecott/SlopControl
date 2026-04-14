@@ -22,6 +22,10 @@ SUPPORTED_PROVIDERS = {
         "prefix": "ollama:",
         "default_model": "llama3",
     },
+    "opencode": {
+        "prefix": "opencode:",
+        "default_model": "big-pickle",
+    },
 }
 
 
@@ -76,6 +80,8 @@ def _detect_provider(model: str) -> str:
         return "anthropic"
     if any(x in model_lower for x in ["llama", "mistral", "codellama", "qwen"]):
         return "ollama"
+    if any(x in model_lower for x in ["big-pickle", "opencode"]):
+        return "opencode"
 
     return "openai"
 
@@ -104,6 +110,16 @@ def _create_model(provider: str, model: str) -> BaseChatModel:
         base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
         return ChatOllama(
             model=model,
+            base_url=base_url,
+            temperature=0,
+        )
+
+    elif provider == "opencode":
+        base_url = os.environ.get("OPENCODE_API_URL", "https://api.opencode.ai/v1")
+        api_key = os.environ.get("OPENCODE_API_KEY")
+        return ChatOpenAI(
+            model=model,
+            api_key=api_key,
             base_url=base_url,
             temperature=0,
         )
@@ -142,6 +158,9 @@ def list_available_models(provider: Optional[str] = None) -> dict[str, list[str]
             "mistral",
             "codellama",
             "qwen2.5",
+        ],
+        "opencode": [
+            "big-pickle",
         ],
     }
 
