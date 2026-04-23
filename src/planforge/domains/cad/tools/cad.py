@@ -2,30 +2,36 @@ from typing import Any, Literal, Optional
 
 from langchain_core.tools import tool
 
-from llmcad import (
-    Box,
-    Cylinder,
-    Sphere,
-    Rect,
-    Circle,
-    Ellipse,
-    Polygon,
-    Text,
-    Sketch,
-    Body,
-    extrude,
-    revolve,
-    loft,
-    sweep,
-    fillet,
-    chamfer,
-    shell,
-    split,
-    mirror,
-    export_step,
-    export_stl,
-    export_glb,
-)
+try:
+    from llmcad import (
+        Box,
+        Cylinder,
+        Sphere,
+        Rect,
+        Circle,
+        Ellipse,
+        Polygon,
+        Text,
+        Sketch,
+        Body,
+        extrude,
+        revolve,
+        loft,
+        sweep,
+        fillet,
+        chamfer,
+        shell,
+        split,
+        mirror,
+        export_step,
+        export_stl,
+        export_glb,
+    )
+    LLMCAD_AVAILABLE = True
+except ImportError:
+    LLMCAD_AVAILABLE = False
+    Box = Cylinder = Sphere = Rect = Circle = Ellipse = Polygon = Text = Sketch = Body = None
+    extrude = revolve = loft = sweep = fillet = chamfer = shell = split = mirror = export_step = export_stl = export_glb = None
 
 from ..utils.cad_helpers import serialize_body, get_model_info
 
