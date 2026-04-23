@@ -21,10 +21,10 @@ except ImportError:
 
 import structlog
 
-from ..tools.cad import CAD_TOOLS
-from ..tools.visualization import VISUALIZATION_TOOLS
-from ..tools.git_ops import GIT_TOOLS
-from ..tools.file_ops import FILE_OPS_TOOLS
+from planforge.domains.cad.tools.cad import CAD_TOOLS
+from planforge.domains.cad.tools.visualization import VISUALIZATION_TOOLS
+from planforge.domains.cad.tools.git_ops import GIT_TOOLS
+from planforge.domains.cad.tools.file_ops import FILE_OPS_TOOLS
 from .tools import get_tool_by_name, list_all_tools
 
 logger = structlog.get_logger()

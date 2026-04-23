@@ -8,7 +8,7 @@ from typing import Optional
 from langchain_core.tools import tool
 
 from ..utils.cad_helpers import deserialize_body
-from ..utils.terminal_display import display_preview_panel, display_multiview_previews
+from planforge.core.utils.terminal_display import display_preview_panel, display_multiview_previews
 
 try:
     from llmcad import snapshot

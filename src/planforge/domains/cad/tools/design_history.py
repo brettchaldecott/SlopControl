@@ -220,7 +220,7 @@ class DesignHistory:
         Returns:
             Formatted string
         """
-        from ..utils.terminal_display import display_design_history_entry
+        from planforge.core.utils.terminal_display import display_design_history_entry
 
         history = self.get_history(limit=limit)
 

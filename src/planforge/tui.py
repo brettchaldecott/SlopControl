@@ -31,11 +31,11 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from .tools.session_manager import SessionManager, DesignState
-from .tools.cad import CAD_TOOLS, create_box, export_model
-from .tools.visualization import render_preview
-from .tools.design_history import DesignHistory
-from .providers.registry import get_model
+from planforge.domains.cad.tools.session_manager import SessionManager, DesignState
+from planforge.domains.cad.tools.cad import CAD_TOOLS, create_box, export_model
+from planforge.domains.cad.tools.visualization import render_preview
+from planforge.domains.cad.tools.design_history import DesignHistory
+from planforge.core.providers.registry import get_model
 
 
 console = Console()

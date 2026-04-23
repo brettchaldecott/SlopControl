@@ -12,8 +12,8 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 
 from .agent import create_cad_agent, run_design_session
-from .providers.registry import list_available_models
-from .utils.terminal import (
+from planforge.core.providers.registry import list_available_models
+from planforge.core.utils.terminal import (
     display_success,
     display_error,
     display_info,
@@ -40,7 +40,7 @@ def init(
     git: bool = typer.Option(True, "--git/--no-git", help="Initialize git repository"),
 ) -> None:
     """Initialize a new PlanForge project."""
-    from .tools.git_ops import init_git_repo
+    from planforge.domains.cad.tools.git_ops import init_git_repo
 
     parent = Path(project_dir) if project_dir else Path.cwd()
     project_path = parent / project_name
@@ -162,7 +162,7 @@ def mcp(
     """
     if action == "start":
         try:
-            from .mcp.server import create_mcp_server
+            from planforge.integrations.mcp.server import create_mcp_server
             import asyncio
 
             display_info(f"Starting MCP server on port {port}...")
@@ -291,7 +291,7 @@ def export(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
 ) -> None:
     """Export a design to a CAD file format."""
-    from .tools.file_ops import load_design_state
+    from planforge.domains.cad.tools.file_ops import load_design_state
 
     project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
 
@@ -310,7 +310,7 @@ def export(
             exports_dir.mkdir(exist_ok=True)
             output = str(exports_dir / f"{design_name}.{format.lower()}")
 
-        from .tools.cad import export_model
+        from planforge.domains.cad.tools.cad import export_model
 
         result = export_model.invoke(
             {
@@ -357,7 +357,7 @@ def history(
     max_count: int = typer.Option(10, "--count", "-n", help="Number of commits to show"),
 ) -> None:
     """Show design version history."""
-    from .tools.git_ops import get_design_history
+    from planforge.domains.cad.tools.git_ops import get_design_history
 
     project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
 
@@ -372,7 +372,7 @@ def history(
 @app.command()
 def tools() -> None:
     """List all available CAD tools."""
-    from .mcp.tools import CAD_MCP_TOOLS
+    from planforge.integrations.mcp.tools import CAD_MCP_TOOLS
 
     console.print("\n[bold cyan]Available PlanForge Tools:[/bold cyan]\n")
 

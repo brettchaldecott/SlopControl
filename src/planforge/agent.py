@@ -9,8 +9,11 @@ from deepagents.backends import FilesystemBackend
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from .providers.registry import get_model
-from .tools.cad import CAD_TOOLS
+from planforge.core.providers.registry import get_model
+from planforge.domains.cad.tools.cad import CAD_TOOLS
+from planforge.domains.cad.tools.visualization import VISUALIZATION_TOOLS
+from planforge.domains.cad.tools.git_ops import GIT_TOOLS
+from planforge.domains.cad.tools.file_ops import FILE_OPS_TOOLS
 
 
 def create_cad_agent(
