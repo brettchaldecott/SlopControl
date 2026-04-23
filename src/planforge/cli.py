@@ -193,6 +193,52 @@ def mcp(
 
 
 @app.command()
+def gateway(
+    action: str = typer.Argument("start", help="Action: start, status"),
+    port: int = typer.Option(None, "--port", "-p", help="Port (default: $PLANFORGE_GATEWAY_PORT or 8000)"),
+) -> None:
+    """Manage the PlanForge LLM gateway server.
+
+    The gateway provides a unified, vendor-independent OpenAI-compatible
+    endpoint that routes to kimi, qwen, glm, opencode, openai, or ollama
+    with automatic fallback.
+    """
+    from planforge.core.gateway import GatewayConfig, create_gateway_app
+
+    cfg = GatewayConfig.from_env()
+    if port is not None:
+        cfg.gateway_port = port
+
+    if action == "start":
+        try:
+            import uvicorn
+            display_info(f"Starting gateway on {cfg.gateway_url}")
+            display_info(f"Fallback chain: {cfg.llm_chain}")
+            app = create_gateway_app()
+            uvicorn.run(
+                app,
+                host=cfg.gateway_host,
+                port=cfg.gateway_port,
+                log_level="info",
+            )
+        except ImportError:
+            display_error("Gateway requires fastapi and uvicorn. Run: pip install planforge[gateway]")
+            raise typer.Exit(1)
+        except Exception as e:
+            display_error(f"Gateway failed: {str(e)}")
+            raise typer.Exit(1)
+
+    elif action == "status":
+        display_info(f"Gateway configured at {cfg.gateway_url}")
+        display_info(f"Fallback chain: {cfg.llm_chain}")
+        display_info("Use 'planforge gateway start' to launch.")
+
+    else:
+        display_error(f"Unknown action: {action}")
+        raise typer.Exit(1)
+
+
+@app.command()
 def tui(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model to use"),
