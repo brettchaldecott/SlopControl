@@ -473,6 +473,192 @@ For more help, see the documentation at https://planforge.readthedocs.io
     )
 
 
+@app.command()
+def verify(
+    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
+    domain: str = typer.Option("cad", "--domain", "-d", help="Domain: cad, code"),
+    max_overhang: float = typer.Option(45.0, "--max-overhang", help="Max overhang angle (CAD only)"),
+    min_wall: float = typer.Option(0.8, "--min-wall", help="Min wall thickness mm (CAD only)"),
+    coverage_threshold: float = typer.Option(80.0, "--coverage-threshold", help="Min coverage % (code only)"),
+) -> None:
+    """Run verification checks for the current project plan."""
+    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects"))
+
+    if not (project_dir / "plan_forge.md").exists():
+        display_error(f"No plan_forge.md found in {project_dir}")
+        raise typer.Exit(1)
+
+    display_info(f"Running L3 verification for {domain} domain in {project_dir}")
+
+    results: list[Any] = []
+
+    if domain == "cad":
+        from planforge.domains.cad.verify import verify_geometry, verify_mechanical, verify_assembly, verify_printability
+
+        results.extend(verify_geometry(str(project_dir)))
+        results.extend(verify_mechanical(str(project_dir)))
+        results.extend(verify_assembly(str(project_dir)))
+        results.extend(verify_printability(str(project_dir), max_overhang=max_overhang, min_wall=min_wall))
+    elif domain == "code":
+        from planforge.domains.code.verify.pytest import PytestVerifier
+        from planforge.domains.code.verify.mypy import MypyVerifier
+        from planforge.domains.code.verify.coverage import CoverageVerifier
+
+        results.extend(PytestVerifier().validate(str(project_dir)))
+        results.extend(MypyVerifier().validate(str(project_dir)))
+        results.extend(CoverageVerifier().validate(str(project_dir), threshold=coverage_threshold))
+    else:
+        display_error(f"Unknown domain: {domain}")
+        raise typer.Exit(1)
+
+    # Print results
+    console.print(f"\n[bold]Verification Results ({domain}):[/bold]\n")
+    all_pass = True
+    for r in results:
+        icon = "[green]✓[/green]" if r.passed else "[red]✗[/red]"
+        console.print(f"{icon} {r.check}: {r.message}")
+        if not r.passed:
+            all_pass = False
+
+    if all_pass:
+        display_success("All checks passed!")
+    else:
+        display_warning("Some checks failed. Review the plan and regenerate.")
+        raise typer.Exit(1)
+
+
+@app.command()
+def plan(
+    action: str = typer.Argument("show", help="Action: create, show, generate, update"),
+    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
+    name: str = typer.Option("", "--name", "-n", help="Plan name"),
+    request: str = typer.Option("", "--request", "-r", help="Requirements for plan generation"),
+    domain: str = typer.Option("cad", "--domain", "-d", help="Domain: cad, code"),
+) -> None:
+    """Manage the plan_forge.md artifact."""
+    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects"))
+    plan_path = project_dir / "plan_forge.md"
+
+    if action == "create":
+        from planforge.core.plan.schema import DesignPlan
+        from planforge.core.plan.renderer import render_plan
+
+        plan_obj = DesignPlan(
+            name=name or project_dir.name,
+            domain=domain,
+            requirements=[request] if request else [],
+            tags=[domain],
+        )
+        render_plan(plan_obj, plan_path)
+        display_success(f"Created {plan_path}")
+
+    elif action == "generate":
+        from planforge.core.plan.generator import PlanGenerator
+        from planforge.core.plan.renderer import render_plan
+
+        if not request:
+            request = typer.prompt("Requirements for the plan")
+
+        generator = PlanGenerator()
+        plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
+        render_plan(plan_obj, plan_path)
+        display_success(f"Generated plan at {plan_path}")
+
+    elif action == "show":
+        from planforge.core.plan.renderer import read_plan
+
+        if not plan_path.exists():
+            display_error(f"No plan found at {plan_path}")
+            raise typer.Exit(1)
+
+        plan_obj = read_plan(plan_path)
+        console.print(f"\n[bold cyan]Plan: {plan_obj.name}[/bold cyan]")
+        console.print(f"Domain: {plan_obj.domain}")
+        console.print(f"Version: {plan_obj.version}")
+        console.print(f"Status: {plan_obj.status}")
+        console.print(f"\n[bold]Requirements:[/bold]")
+        for req in plan_obj.requirements:
+            console.print(f"  - {req}")
+
+    elif action == "update":
+        display_info("Use 'planforge plan generate' to regenerate the plan with updated requirements.")
+
+    else:
+        display_error(f"Unknown action: {action}")
+        raise typer.Exit(1)
+
+
+@app.command()
+def execute(
+    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
+    agent: str = typer.Option("planforge", "--agent", "-a", help="Agent: planforge, opencode, claude, cursor"),
+    section: str = typer.Option("all", "--section", "-s", help="Plan section to execute"),
+) -> None:
+    """Execute the current plan using the specified agent."""
+    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects"))
+    plan_path = project_dir / "plan_forge.md"
+
+    if not plan_path.exists():
+        display_error(f"No plan found at {plan_path}")
+        raise typer.Exit(1)
+
+    display_info(f"Executing plan section '{section}' with agent '{agent}'")
+
+    if agent == "planforge":
+        # Internal CAD agent
+        from .agent import run_design_session
+        from planforge.core.plan.renderer import read_plan
+
+        plan_obj = read_plan(plan_path)
+        req = " ".join(plan_obj.requirements)
+        result = run_design_session(prompt=req, project_dir=str(project_dir), interactive=False)
+        display_success("PlanForge execution complete")
+        console.print(str(result.get("result", "")))
+
+    elif agent == "opencode":
+        from planforge.integrations.opencode import OpenCodeAdapter
+        from planforge.core.plan.renderer import read_plan
+
+        plan_obj = read_plan(plan_path)
+        task = f"Implement the following plan:\n\n" + "\n".join(plan_obj.requirements)
+        adapter = OpenCodeAdapter()
+        result = adapter.execute(task=task, context_dir=project_dir)
+        if result["success"]:
+            display_success("OpenCode execution complete")
+        else:
+            display_error(f"OpenCode failed: {result['stderr']}")
+        console.print(result.get("stdout", ""))
+
+    elif agent == "claude":
+        from planforge.integrations.claude import ClaudeAdapter
+        from planforge.core.plan.renderer import read_plan
+
+        plan_obj = read_plan(plan_path)
+        task = f"Implement the following plan:\n\n" + "\n".join(plan_obj.requirements)
+        adapter = ClaudeAdapter()
+        result = adapter.execute(task=task, context_dir=project_dir)
+        if result["success"]:
+            display_success("Claude execution complete")
+        else:
+            display_error(f"Claude failed: {result['stderr']}")
+        console.print(result.get("stdout", ""))
+
+    elif agent == "cursor":
+        from planforge.integrations.cursor import CursorAdapter
+        from planforge.core.plan.renderer import read_plan
+
+        plan_obj = read_plan(plan_path)
+        task = f"Implement the following plan:\n\n" + "\n".join(plan_obj.requirements)
+        adapter = CursorAdapter()
+        result = adapter.execute(task=task, context_dir=project_dir)
+        display_info(result.get("stderr", ""))
+        console.print(result.get("stdout", ""))
+
+    else:
+        display_error(f"Unknown agent: {agent}")
+        raise typer.Exit(1)
+
+
 def main() -> None:
     """Main entry point for the CLI."""
     if len(sys.argv) > 1 and sys.argv[1] == "help":
