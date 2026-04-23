@@ -1,7 +1,7 @@
-"""MCP server tools for CadAI.
+"""MCP server tools for PlanForge.
 
 This module provides MCP (Model Context Protocol) tool definitions
-for the CAD tools, allowing AI clients to use CadAI as a tool server.
+for the CAD tools, allowing AI clients to use PlanForge as a tool server.
 """
 
 from typing import Any, Optional

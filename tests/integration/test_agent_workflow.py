@@ -1,4 +1,4 @@
-"""Integration tests for the CadAI agent workflow."""
+"""Integration tests for the PlanForge agent workflow."""
 
 import json
 import tempfile
@@ -12,7 +12,7 @@ class TestAgentWorkflow:
 
     def test_create_box_and_export(self):
         """Test creating a simple box and exporting it."""
-        from cadai.tools.cad import create_box, export_model
+        from planforge.tools.cad import create_box, export_model
 
         box_result = create_box.invoke(
             {
@@ -29,7 +29,7 @@ class TestAgentWorkflow:
 
     def test_create_cylinder(self):
         """Test cylinder creation."""
-        from cadai.tools.cad import create_cylinder
+        from planforge.tools.cad import create_cylinder
 
         result = create_cylinder.invoke(
             {
@@ -44,7 +44,7 @@ class TestAgentWorkflow:
 
     def test_create_sphere(self):
         """Test sphere creation."""
-        from cadai.tools.cad import create_sphere
+        from planforge.tools.cad import create_sphere
 
         result = create_sphere.invoke(
             {
@@ -58,7 +58,7 @@ class TestAgentWorkflow:
 
     def test_boolean_operations(self):
         """Test boolean operations between bodies."""
-        from cadai.tools.cad import create_box, create_cylinder, union_bodies, cut_body
+        from planforge.tools.cad import create_box, create_cylinder, union_bodies, cut_body
 
         box_data = create_box.invoke(
             {
@@ -88,7 +88,7 @@ class TestAgentWorkflow:
 
     def test_cad_tools_list(self):
         """Test that all expected CAD tools are available."""
-        from cadai.tools.cad import CAD_TOOLS
+        from planforge.tools.cad import CAD_TOOLS
 
         tool_names = [t.name for t in CAD_TOOLS]
 
@@ -114,7 +114,7 @@ class TestVisualization:
 
     def test_render_preview_structure(self):
         """Test that render_preview tool exists and has correct signature."""
-        from cadai.tools.visualization import render_preview
+        from planforge.tools.visualization import render_preview
 
         assert render_preview is not None
         assert hasattr(render_preview, "invoke")
@@ -122,14 +122,14 @@ class TestVisualization:
 
     def test_display_preview_structure(self):
         """Test that display_preview tool exists."""
-        from cadai.tools.visualization import display_preview
+        from planforge.tools.visualization import display_preview
 
         assert display_preview is not None
         assert hasattr(display_preview, "invoke")
 
     def test_visualization_tools_count(self):
         """Test that all visualization tools are available."""
-        from cadai.tools.visualization import VISUALIZATION_TOOLS
+        from planforge.tools.visualization import VISUALIZATION_TOOLS
 
         assert len(VISUALIZATION_TOOLS) >= 4
 
@@ -139,7 +139,7 @@ class TestGitIntegration:
 
     def test_git_tools_exist(self):
         """Test that git tools are available."""
-        from cadai.tools.git_ops import (
+        from planforge.tools.git_ops import (
             commit_design,
             get_design_history,
             init_git_repo,
@@ -151,7 +151,7 @@ class TestGitIntegration:
 
     def test_init_git_repo(self, tmp_path):
         """Test initializing a git repository."""
-        from cadai.tools.git_ops import init_git_repo
+        from planforge.tools.git_ops import init_git_repo
 
         result = init_git_repo.invoke(
             {
@@ -167,7 +167,7 @@ class TestFileOperations:
 
     def test_file_ops_tools_exist(self):
         """Test that file operations tools exist."""
-        from cadai.tools.file_ops import (
+        from planforge.tools.file_ops import (
             save_design_state,
             load_design_state,
             list_designs,
@@ -181,7 +181,7 @@ class TestFileOperations:
 
     def test_create_project(self, tmp_path):
         """Test creating a new project."""
-        from cadai.tools.file_ops import create_project
+        from planforge.tools.file_ops import create_project
 
         result = create_project.invoke(
             {
@@ -195,8 +195,8 @@ class TestFileOperations:
 
     def test_save_and_load_design(self, tmp_path):
         """Test saving and loading a design state."""
-        from cadai.tools.file_ops import save_design_state, load_design_state
-        from cadai.tools.cad import create_box
+        from planforge.tools.file_ops import save_design_state, load_design_state
+        from planforge.tools.cad import create_box
 
         designs_dir = tmp_path / "designs"
         designs_dir.mkdir()
@@ -235,7 +235,7 @@ class TestDesignHistory:
 
     def test_design_history_init(self, tmp_path):
         """Test initializing design history."""
-        from cadai.tools.design_history import DesignHistory
+        from planforge.tools.design_history import DesignHistory
 
         history = DesignHistory(tmp_path)
         assert history.project_path == tmp_path
@@ -243,7 +243,7 @@ class TestDesignHistory:
 
     def test_add_iteration(self, tmp_path):
         """Test adding iterations to history."""
-        from cadai.tools.design_history import DesignHistory
+        from planforge.tools.design_history import DesignHistory
 
         history = DesignHistory(tmp_path)
 
@@ -271,7 +271,7 @@ class TestDesignHistory:
 
     def test_compare_versions(self, tmp_path):
         """Test comparing two versions."""
-        from cadai.tools.design_history import DesignHistory
+        from planforge.tools.design_history import DesignHistory
 
         history = DesignHistory(tmp_path)
 
@@ -301,7 +301,7 @@ class TestProviderRegistry:
 
     def test_parse_model_string(self):
         """Test model string parsing."""
-        from cadai.providers.registry import parse_model_string
+        from planforge.providers.registry import parse_model_string
 
         provider, model = parse_model_string("openai:gpt-4o")
         assert provider == "openai"
@@ -313,7 +313,7 @@ class TestProviderRegistry:
 
     def test_list_available_models(self):
         """Test listing available models."""
-        from cadai.providers.registry import list_available_models
+        from planforge.providers.registry import list_available_models
 
         models = list_available_models()
         assert "openai" in models
@@ -329,13 +329,13 @@ class TestCLICmds:
 
     def test_cli_imports(self):
         """Test that CLI can be imported."""
-        from cadai.cli import app
+        from planforge.cli import app
 
         assert app is not None
 
     def test_mcp_tools_list(self):
         """Test that MCP tools list works."""
-        from cadai.mcp.tools import CAD_MCP_TOOLS
+        from planforge.mcp.tools import CAD_MCP_TOOLS
 
         assert len(CAD_MCP_TOOLS) > 30
 

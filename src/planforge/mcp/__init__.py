@@ -1,14 +1,14 @@
-"""MCP (Model Context Protocol) module for CadAI.
+"""MCP (Model Context Protocol) module for PlanForge.
 
-This module provides MCP server functionality to expose CadAI CAD tools
+This module provides MCP server functionality to expose PlanForge CAD tools
 to AI clients like Cursor, Claude Desktop, and other MCP-compatible tools.
 """
 
-from .server import CadAIMCPServer, create_mcp_server, run_server, main
+from .server import PlanForgeMCPServer, create_mcp_server, run_server, main
 from .tools import CAD_MCP_TOOLS, get_tool_by_name, list_all_tools
 
 __all__ = [
-    "CadAIMCPServer",
+    "PlanForgeMCPServer",
     "create_mcp_server",
     "run_server",
     "main",

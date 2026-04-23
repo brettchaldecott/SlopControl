@@ -1,12 +1,12 @@
-# CadAI
+# PlanForge
 
 **AI-Powered CAD Agent for Natural Language 3D Modeling**
 
 [![PyPI version](https://img.shields.io/pypi/v/cadAI)](https://pypi.org/project/cadAI/)
 [![Python](https://img.shields.io/pypi/pyversions/cadAI)](https://pypi.org/project/cadAI/)
-[![License](https://img.shields.io/github/license/yourusername/CadAI)](LICENSE)
+[![License](https://img.shields.io/github/license/yourusername/PlanForge)](LICENSE)
 
-CadAI is an AI-powered CAD agent that enables you to design complex 3D parts using natural language. Built on [deepagents](https://github.com/langchain-ai/deepagents) and [llmcad](https://llmcad.org/), it provides an iterative design workflow with visual feedback.
+PlanForge is an AI-powered CAD agent that enables you to design complex 3D parts using natural language. Built on [deepagents](https://github.com/langchain-ai/deepagents) and [llmcad](https://llmcad.org/), it provides an iterative design workflow with visual feedback.
 
 ## Features
 
@@ -34,14 +34,14 @@ uv add cadAI
 ### 1. Initialize a project
 
 ```bash
-cadai init my-design
+planforge init my-design
 cd my-design
 ```
 
 ### 2. Run a design session
 
 ```bash
-cadai design "Create a U-shaped mounting bracket with 4 mounting holes"
+planforge design "Create a U-shaped mounting bracket with 4 mounting holes"
 ```
 
 ### 3. Iterate based on feedback
@@ -54,7 +54,7 @@ Agent: [Updates design and shows preview]
 ### 4. Export your design
 
 ```bash
-cadai export bracket --format stl
+planforge export bracket --format stl
 ```
 
 ## Usage
@@ -63,25 +63,25 @@ cadai export bracket --format stl
 
 ```bash
 # Initialize a new project
-cadai init my-project
+planforge init my-project
 
 # Run a design session
-cadai design "Create a gear with 12 teeth"
+planforge design "Create a gear with 12 teeth"
 
 # Export a design
-cadai export gear --format step
+planforge export gear --format step
 
 # View design history
-cadai history
+planforge history
 
 # List available models
-cadai models
+planforge models
 ```
 
 ### Python API
 
 ```python
-from cadai import create_cad_agent
+from planforge import create_cad_agent
 
 agent = create_cad_agent(
     model="openai:gpt-4o",
@@ -100,16 +100,16 @@ Create a `.env` file:
 ```bash
 OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
-CADAI_MODEL=openai:gpt-4o
-CADAI_PROJECT_DIR=./projects
+PLANFORGE_MODEL=openai:gpt-4o
+PLANFORGE_PROJECT_DIR=./projects
 ```
 
 ## MCP Server
 
-CadAI can run as an MCP server, exposing CAD tools to AI coding assistants:
+PlanForge can run as an MCP server, exposing CAD tools to AI coding assistants:
 
 ```bash
-cadai mcp start
+planforge mcp start
 ```
 
 See [docs/mcp_setup.md](docs/mcp_setup.md) for configuration with Cursor and Claude Desktop.
@@ -118,7 +118,7 @@ See [docs/mcp_setup.md](docs/mcp_setup.md) for configuration with Cursor and Cla
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         CadAI                               │
+│                         PlanForge                               │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐ │
 │  │  Planning   │  │   Memory     │  │   CAD Skills      │ │

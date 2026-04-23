@@ -1,4 +1,4 @@
-"""CadAI CLI - Command-line interface for the CAD agent."""
+"""PlanForge CLI - Command-line interface for the CAD agent."""
 
 import os
 import sys
@@ -23,8 +23,8 @@ from .utils.terminal import (
 load_dotenv()
 
 app = typer.Typer(
-    name="cadai",
-    help="CadAI - AI-powered CAD agent for natural language 3D modeling",
+    name="planforge",
+    help="PlanForge - AI-powered CAD agent for natural language 3D modeling",
     add_completion=False,
 )
 
@@ -39,7 +39,7 @@ def init(
     ),
     git: bool = typer.Option(True, "--git/--no-git", help="Initialize git repository"),
 ) -> None:
-    """Initialize a new CadAI project."""
+    """Initialize a new PlanForge project."""
     from .tools.git_ops import init_git_repo
 
     parent = Path(project_dir) if project_dir else Path.cwd()
@@ -57,7 +57,7 @@ def init(
     readme = project_path / "README.md"
     readme.write_text(f"""# {project_name}
 
-A CadAI project for designing 3D parts.
+A PlanForge project for designing 3D parts.
 
 ## Structure
 - `designs/` - Saved design states
@@ -67,7 +67,7 @@ A CadAI project for designing 3D parts.
 ## Usage
 ```bash
 cd {project_path}
-cadai design
+planforge design
 ```
 """)
 
@@ -95,12 +95,12 @@ def design(
     """Run a design session with the CAD agent."""
     console.print(
         Panel.fit(
-            "[bold cyan]CadAI[/bold cyan] - AI-Powered CAD Designer",
+            "[bold cyan]PlanForge[/bold cyan] - AI-Powered CAD Designer",
             border_style="cyan",
         )
     )
 
-    project_dir = project or os.environ.get("CADAI_PROJECT_DIR", "./projects")
+    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
 
     if not Path(project_dir).exists():
         display_warning(f"Project directory '{project_dir}' does not exist.")
@@ -145,7 +145,7 @@ def design(
 
     except Exception as e:
         display_error(f"Error: {str(e)}")
-        if os.environ.get("CADAI_DEBUG"):
+        if os.environ.get("PLANFORGE_DEBUG"):
             raise
         raise typer.Exit(1)
 
@@ -156,7 +156,7 @@ def mcp(
     port: int = typer.Option(8765, "--port", "-p", help="Port for MCP server"),
     transport: str = typer.Option("stdio", "--transport", "-t", help="Transport type (stdio, sse)"),
 ) -> None:
-    """Manage the CadAI MCP server.
+    """Manage the PlanForge MCP server.
 
     Use this to start an MCP server that exposes CAD tools to AI clients.
     """
@@ -179,10 +179,10 @@ def mcp(
             raise typer.Exit(1)
 
     elif action == "status":
-        display_info("MCP server status: Use 'cadai mcp start' to start the server")
+        display_info("MCP server status: Use 'planforge mcp start' to start the server")
         console.print("\n[dim]MCP Configuration:[/dim]")
         console.print("  Add to your AI client config:")
-        console.print('  { "cadai": { "command": "cadai", "args": ["mcp", "start"] } }')
+        console.print('  { "planforge": { "command": "planforge", "args": ["mcp", "start"] } }')
 
     elif action == "stop":
         display_info("Stop the MCP server by pressing Ctrl+C")
@@ -210,7 +210,7 @@ def tui(
     """
     from .tui import run_tui
 
-    project_dir = project or os.environ.get("CADAI_PROJECT_DIR", "./projects")
+    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
     project_path = Path(project_dir)
 
     if not project_path.exists():
@@ -247,7 +247,7 @@ def export(
     """Export a design to a CAD file format."""
     from .tools.file_ops import load_design_state
 
-    project_dir = project or os.environ.get("CADAI_PROJECT_DIR", "./projects")
+    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
 
     try:
         body_data = load_design_state(
@@ -313,7 +313,7 @@ def history(
     """Show design version history."""
     from .tools.git_ops import get_design_history
 
-    project_dir = project or os.environ.get("CADAI_PROJECT_DIR", "./projects")
+    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
 
     result = get_design_history(
         project_path=project_dir,
@@ -328,7 +328,7 @@ def tools() -> None:
     """List all available CAD tools."""
     from .mcp.tools import CAD_MCP_TOOLS
 
-    console.print("\n[bold cyan]Available CadAI Tools:[/bold cyan]\n")
+    console.print("\n[bold cyan]Available PlanForge Tools:[/bold cyan]\n")
 
     categories = {
         "Shapes": ["create_box", "create_cylinder", "create_sphere"],
@@ -383,12 +383,12 @@ def help_cmd() -> None:
     """Show help and usage information."""
     console.print(
         Panel.fit(
-            """# CadAI - AI-Powered CAD Agent
+            """# PlanForge - AI-Powered CAD Agent
 
 ## Quick Start
-1. Initialize a project: `cadai init my-project`
-2. Run a design session: `cadai design "Create a mounting bracket"`
-3. Export your design: `cadai export bracket --format stl`
+1. Initialize a project: `planforge init my-project`
+2. Run a design session: `planforge design "Create a mounting bracket"`
+3. Export your design: `planforge export bracket --format stl`
 
 ## Commands
 - `init <name>` - Create a new project
@@ -403,25 +403,25 @@ def help_cmd() -> None:
 ## TUI Mode
 Launch the interactive terminal UI:
 ```bash
-cadai tui
+planforge tui
 ```
 
 ## MCP Server
-Start the MCP server to use CadAI tools from AI clients:
+Start the MCP server to use PlanForge tools from AI clients:
 ```bash
-cadai mcp start
+planforge mcp start
 ```
 
 ## Environment Variables
-- `CADAI_MODEL` - Default LLM model
-- `CADAI_PROJECT_DIR` - Default project directory
+- `PLANFORGE_MODEL` - Default LLM model
+- `PLANFORGE_PROJECT_DIR` - Default project directory
 - `OPENAI_API_KEY` - OpenAI API key
 - `ANTHROPIC_API_KEY` - Anthropic API key
 - `OLLAMA_BASE_URL` - Ollama server URL
 
-For more help, see the documentation at https://cadai.readthedocs.io
+For more help, see the documentation at https://planforge.readthedocs.io
 """,
-            title="CadAI Help",
+            title="PlanForge Help",
             border_style="cyan",
         )
     )

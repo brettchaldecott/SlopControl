@@ -39,7 +39,7 @@ class DesignHistory:
             project_path: Path to the project directory
         """
         self.project_path = project_path
-        self.history_file = project_path / ".cadai" / "history.json"
+        self.history_file = project_path / ".planforge" / "history.json"
         self.iterations: list[DesignIteration] = []
         self._load()
 

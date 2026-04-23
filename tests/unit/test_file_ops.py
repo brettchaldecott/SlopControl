@@ -9,31 +9,31 @@ class TestFileOpsTools:
 
     def test_save_design_exists(self):
         """Test save_design_state tool exists."""
-        from cadai.tools.file_ops import save_design_state
+        from planforge.tools.file_ops import save_design_state
 
         assert save_design_state is not None
 
     def test_load_design_exists(self):
         """Test load_design_state tool exists."""
-        from cadai.tools.file_ops import load_design_state
+        from planforge.tools.file_ops import load_design_state
 
         assert load_design_state is not None
 
     def test_list_designs_exists(self):
         """Test list_designs tool exists."""
-        from cadai.tools.file_ops import list_designs
+        from planforge.tools.file_ops import list_designs
 
         assert list_designs is not None
 
     def test_create_project_exists(self):
         """Test create_project tool exists."""
-        from cadai.tools.file_ops import create_project
+        from planforge.tools.file_ops import create_project
 
         assert create_project is not None
 
     def test_file_ops_tools_list(self):
         """Test that FILE_OPS_TOOLS list contains expected tools."""
-        from cadai.tools.file_ops import FILE_OPS_TOOLS
+        from planforge.tools.file_ops import FILE_OPS_TOOLS
 
         expected_tools = [
             "save_design_state",

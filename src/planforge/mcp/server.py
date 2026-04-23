@@ -1,7 +1,7 @@
-"""MCP Server for CadAI.
+"""MCP Server for PlanForge.
 
 This module provides an MCP (Model Context Protocol) server implementation
-that exposes CadAI CAD tools to AI clients like Cursor, Claude Desktop, etc.
+that exposes PlanForge CAD tools to AI clients like Cursor, Claude Desktop, etc.
 """
 
 import asyncio
@@ -33,10 +33,10 @@ logger = structlog.get_logger()
 ALL_TOOLS = CAD_TOOLS + VISUALIZATION_TOOLS + GIT_TOOLS + FILE_OPS_TOOLS
 
 
-class CadAIMCPServer:
-    """MCP Server for CadAI CAD tools."""
+class PlanForgeMCPServer:
+    """MCP Server for PlanForge CAD tools."""
 
-    def __init__(self, name: str = "cadai"):
+    def __init__(self, name: str = "planforge"):
         """Initialize the MCP server.
 
         Args:
@@ -129,13 +129,13 @@ class CadAIMCPServer:
             raise ValueError(f"Unsupported transport: {transport}")
 
 
-def create_mcp_server() -> CadAIMCPServer:
+def create_mcp_server() -> PlanForgeMCPServer:
     """Create an MCP server instance.
 
     Returns:
-        Configured CadAIMCPServer instance
+        Configured PlanForgeMCPServer instance
     """
-    return CadAIMCPServer()
+    return PlanForgeMCPServer()
 
 
 async def run_server(transport: str = "stdio", port: Optional[int] = None):
@@ -153,7 +153,7 @@ def main():
     """Main entry point for MCP server."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="CadAI MCP Server")
+    parser = argparse.ArgumentParser(description="PlanForge MCP Server")
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse"],

@@ -1,12 +1,42 @@
 [project]
-name = "cadAI"
-version = "0.1.0"
-description = "AI-powered CAD agent for natural language 3D modeling"
+name = "planforge"
+version = "0.2.0"
+description = "PlanForge - AI-powered plan-driven orchestration for CAD and software development"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "Brett Chaldecott"}
+]
+keywords = ["plan", "orchestrator", "cad", "3d", "modeling", "ai", "agent", "llm", "langchain", "software", "development"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "deepagents>=0.5.0",
+    "build123d>=0.15.0",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-anthropic>=0.2.0",
+    "langchain-ollama>=0.1.0",
+    "typer[all]>=0.12.0",
+    "pillow>=10.0.0",
+    "gitpython>=3.1.40",
+    "structlog>=24.0.0",
+    "pydantic>=2.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
+    "textual>=0.50.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.30.0",
+    "sentence-transformers>=3.0.0",
 ]
 keywords = ["cad", "3d", "modeling", "ai", "agent", "llm", "langchain", "deepagents"]
 classifiers = [
@@ -47,21 +77,21 @@ dev = [
 ]
 
 [project.scripts]
-cadAI = "cadai.cli:main"
-cadai = "cadai.cli:main"
+cadAI = "planforge.cli:main"
+planforge = "planforge.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/CadAI"
-Documentation = "https://cadai.readthedocs.io"
-Repository = "https://github.com/yourusername/CadAI"
-Issues = "https://github.com/yourusername/CadAI/issues"
+Homepage = "https://github.com/yourusername/PlanForge"
+Documentation = "https://planforge.readthedocs.io"
+Repository = "https://github.com/yourusername/PlanForge"
+Issues = "https://github.com/yourusername/PlanForge/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/cadai"]
+packages = ["src/planforge"]
 
 [tool.hatch.build.targets.sdist]
 include = [

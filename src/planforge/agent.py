@@ -1,4 +1,4 @@
-"""CadAI Agent Factory - Creates CAD-enabled deep agents."""
+"""PlanForge Agent Factory - Creates CAD-enabled deep agents."""
 
 import os
 from pathlib import Path
@@ -27,9 +27,9 @@ def create_cad_agent(
 
     Args:
         model: LLM model to use (e.g., "openai:gpt-4o", "anthropic:claude-sonnet-4-7")
-               If None, uses CADAI_MODEL env var or defaults to "openai:gpt-4o"
+               If None, uses PLANFORGE_MODEL env var or defaults to "openai:gpt-4o"
         provider: LLM provider to use ("openai", "anthropic", "ollama", "auto")
-        project_dir: Directory for projects (default: ./projects or CADAI_PROJECT_DIR)
+        project_dir: Directory for projects (default: ./projects or PLANFORGE_PROJECT_DIR)
         auto_commit: Whether to auto-commit design changes to git
         preview_on_iteration: Whether to render previews after design changes
         memory_path: Path to AGENTS.md memory file
@@ -44,14 +44,14 @@ def create_cad_agent(
         >>> result = agent.invoke({"messages": [("user", "Create a 50mm cube")]})
     """
     if model is None:
-        model = os.environ.get("CADAI_MODEL", "opencode:big-pickle")
+        model = os.environ.get("PLANFORGE_MODEL", "opencode:big-pickle")
 
     if isinstance(model, str):
         chat_model = get_model(model, provider=provider)
     else:
         chat_model = model
 
-    resolved_project_dir = project_dir or os.environ.get("CADAI_PROJECT_DIR", "./projects")
+    resolved_project_dir = project_dir or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
 
     backend = FilesystemBackend(root_dir=resolved_project_dir)
 
@@ -75,7 +75,7 @@ def create_cad_agent(
 
     system_prompt = deepagents_kwargs.pop(
         "system_prompt",
-        """You are CadAI, an expert 3D CAD designer. You help users create parametric 3D models
+        """You are PlanForge, an expert 3D CAD designer. You help users create parametric 3D models
 using natural language. You have access to llmcad for creating and modifying 3D geometry.
 
 Key principles:

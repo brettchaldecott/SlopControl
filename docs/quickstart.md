@@ -3,7 +3,7 @@
 ## 1. Initialize a Project
 
 ```bash
-cadai init my-first-design
+planforge init my-first-design
 cd my-first-design
 ```
 
@@ -18,7 +18,7 @@ my-first-design/
 ## 2. Start a Design Session
 
 ```bash
-cadai design "Create a 50mm cube with a 10mm hole through it"
+planforge design "Create a 50mm cube with a 10mm hole through it"
 ```
 
 The agent will:
@@ -47,13 +47,13 @@ When you're happy with the design, export it:
 
 ```bash
 # Export as STL (for 3D printing)
-cadai export cube --format stl
+planforge export cube --format stl
 
 # Export as STEP (for CAD editing)
-cadai export cube --format step
+planforge export cube --format step
 
 # Export as GLB (for web/AR)
-cadai export cube --format glb
+planforge export cube --format glb
 ```
 
 ## 5. View Design History
@@ -61,7 +61,7 @@ cadai export cube --format glb
 Every change is automatically committed to git:
 
 ```bash
-cadai history
+planforge history
 ```
 
 Output:
@@ -70,15 +70,15 @@ Design History:
 ============================================================
 1. a3f8b2c | 2024-01-15 14:30
    Add fillet to edges
-   by CadAI Agent
+   by PlanForge Agent
 
 2. b4c9d3e | 2024-01-15 14:28
    Increase height to 80mm
-   by CadAI Agent
+   by PlanForge Agent
 
 3. c5d0e4f | 2024-01-15 14:25
    Initial cube with hole
-   by CadAI Agent
+   by PlanForge Agent
 ```
 
 ## Interactive Mode
@@ -86,7 +86,7 @@ Design History:
 Run without arguments for interactive mode:
 
 ```bash
-cadai design
+planforge design
 ```
 
 You'll be prompted to enter your design request, then the agent will help you iterate.
@@ -116,5 +116,5 @@ wall thickness.
 
 ## Next Steps
 
-- [MCP Setup](mcp_setup.md) - Use CadAI tools from AI coding assistants
+- [MCP Setup](mcp_setup.md) - Use PlanForge tools from AI coding assistants
 - [Design Patterns](design_patterns.md) - Common CAD design patterns

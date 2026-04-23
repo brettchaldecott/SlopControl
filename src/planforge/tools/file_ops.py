@@ -88,7 +88,7 @@ def create_project(
     project_name: str,
     project_path: Optional[str] = None,
 ) -> str:
-    """Create a new CadAI project directory.
+    """Create a new PlanForge project directory.
 
     Args:
         project_name: Name for the new project
@@ -112,7 +112,7 @@ def create_project(
     readme = project_dir / "README.md"
     readme.write_text(f"""# {project_name}
 
-A CadAI project for designing 3D parts.
+A PlanForge project for designing 3D parts.
 
 ## Structure
 - `designs/` - Saved design states
@@ -120,9 +120,9 @@ A CadAI project for designing 3D parts.
 - `previews/` - Rendered preview images
 
 ## Usage
-Use the CadAI CLI to work with this project:
+Use the PlanForge CLI to work with this project:
 ```bash
-cadai design --project {project_name}
+planforge design --project {project_name}
 ```
 """)
 

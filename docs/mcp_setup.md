@@ -1,17 +1,17 @@
 # MCP Setup Guide
 
-CadAI can run as an MCP (Model Context Protocol) server, exposing CAD tools to AI coding assistants like Cursor, Claude Desktop, and other MCP-compatible clients.
+PlanForge can run as an MCP (Model Context Protocol) server, exposing CAD tools to AI coding assistants like Cursor, Claude Desktop, and other MCP-compatible clients.
 
 ## What is MCP?
 
-MCP (Model Context Protocol) is a standard protocol that allows AI models to use external tools. By running CadAI as an MCP server, AI clients can access CAD tools directly.
+MCP (Model Context Protocol) is a standard protocol that allows AI models to use external tools. By running PlanForge as an MCP server, AI clients can access CAD tools directly.
 
 ## Starting the MCP Server
 
 ### Basic Usage (stdio mode)
 
 ```bash
-cadai mcp start
+planforge mcp start
 ```
 
 This starts the server using stdio transport, which works with most AI clients.
@@ -19,13 +19,13 @@ This starts the server using stdio transport, which works with most AI clients.
 ### SSE Mode (for web clients)
 
 ```bash
-cadai mcp start --transport sse --port 8765
+planforge mcp start --transport sse --port 8765
 ```
 
 ### Check Status
 
 ```bash
-cadai mcp status
+planforge mcp status
 ```
 
 ## Client Configuration
@@ -37,8 +37,8 @@ Add to your Cursor settings (`~/.cursor/mcp.json`):
 ```json
 {
   "mcpServers": {
-    "cadai": {
-      "command": "cadai",
+    "planforge": {
+      "command": "planforge",
       "args": ["mcp", "start"]
     }
   }
@@ -50,9 +50,9 @@ Or use npx:
 ```json
 {
   "mcpServers": {
-    "cadai": {
+    "planforge": {
       "command": "npx",
-      "args": ["-y", "cadai", "mcp", "start"]
+      "args": ["-y", "planforge", "mcp", "start"]
     }
   }
 }
@@ -65,8 +65,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "cadai": {
-      "command": "cadai",
+    "planforge": {
+      "command": "planforge",
       "args": ["mcp", "start"],
       "env": {
         "OPENAI_API_KEY": "your-api-key"
@@ -83,8 +83,8 @@ MCP support in VS Code Copilot is available in the latest versions. Add to your 
 ```json
 {
   "mcp.servers": {
-    "cadai": {
-      "command": "cadai",
+    "planforge": {
+      "command": "planforge",
       "args": ["mcp", "start"]
     }
   }
@@ -151,9 +151,9 @@ Done! The cube has been created and exported to cube.stl.
 
 ### Server won't start
 
-Check that CadAI is installed:
+Check that PlanForge is installed:
 ```bash
-cadai --version
+planforge --version
 ```
 
 ### Client can't connect
@@ -167,15 +167,15 @@ cadai --version
 Set your API keys as environment variables:
 ```bash
 export OPENAI_API_KEY=your-key
-cadai mcp start
+planforge mcp start
 ```
 
 Or include them in your client config:
 ```json
 {
   "mcpServers": {
-    "cadai": {
-      "command": "cadai",
+    "planforge": {
+      "command": "planforge",
       "args": ["mcp", "start"],
       "env": {
         "OPENAI_API_KEY": "your-key"

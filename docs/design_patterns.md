@@ -1,6 +1,6 @@
 # Design Patterns
 
-This guide covers common CAD design patterns and how to implement them with CadAI.
+This guide covers common CAD design patterns and how to implement them with PlanForge.
 
 ## 1. Mounting Plate with Holes
 

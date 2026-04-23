@@ -8,11 +8,11 @@ console = Console()
 
 
 def get_project_dir(project_dir: Optional[str] = None) -> Path:
-    """Get the project directory, defaulting to CADAI_PROJECT_DIR or ./projects."""
+    """Get the project directory, defaulting to PLANFORGE_PROJECT_DIR or ./projects."""
     if project_dir:
         return Path(project_dir)
 
-    env_dir = os.environ.get("CADAI_PROJECT_DIR")
+    env_dir = os.environ.get("PLANFORGE_PROJECT_DIR")
     if env_dir:
         return Path(env_dir)
 

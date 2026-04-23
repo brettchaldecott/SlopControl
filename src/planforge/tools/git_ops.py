@@ -209,8 +209,8 @@ def init_git_repo(
 
     repo = Repo(repo_path)
     config_writer = repo.config_writer()
-    config_writer.set_value("user", "name", "CadAI Agent").release()
-    config_writer.set_value("user", "email", "cadai@agent.local").release()
+    config_writer.set_value("user", "name", "PlanForge Agent").release()
+    config_writer.set_value("user", "email", "planforge@agent.local").release()
 
     gitignore_path = repo_path / ".gitignore"
     if not gitignore_path.exists():
@@ -233,7 +233,7 @@ projects/
 """)
 
     repo.index.add([".gitignore"])
-    repo.index.commit("Initial commit: CadAI project setup")
+    repo.index.commit("Initial commit: PlanForge project setup")
 
     return f"Initialized git repository at {repo_path}"
 

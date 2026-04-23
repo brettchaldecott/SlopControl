@@ -1,4 +1,4 @@
-"""CadAI - AI-Powered CAD Agent for Natural Language 3D Modeling"""
+"""PlanForge - AI-Powered CAD Agent for Natural Language 3D Modeling"""
 
 from .agent import create_cad_agent
 from .tools.cad import CAD_TOOLS

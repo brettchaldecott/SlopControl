@@ -67,7 +67,7 @@ class SessionManager:
             project_path: Path to the project directory
         """
         self.project_path = project_path
-        self.sessions_dir = project_path / ".cadai" / "sessions"
+        self.sessions_dir = project_path / ".planforge" / "sessions"
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
         self.current_session: Optional[DesignState] = None
 

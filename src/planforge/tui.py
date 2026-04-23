@@ -1,4 +1,4 @@
-"""Interactive TUI for CadAI design sessions."""
+"""Interactive TUI for PlanForge design sessions."""
 
 import asyncio
 import json
@@ -57,8 +57,8 @@ class DesignLog(Log):
             self.write(message)
 
 
-class CadAIApp(App if TEXTUAL_AVAILABLE else object):
-    """Interactive CadAI TUI application."""
+class PlanForgeApp(App if TEXTUAL_AVAILABLE else object):
+    """Interactive PlanForge TUI application."""
 
     CSS = """
     Screen {
@@ -133,7 +133,7 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
         with Container(id="main-container"):
             with Horizontal(id="header-area"):
                 yield Static(
-                    "[bold cyan]CadAI[/bold cyan] Interactive Design Session",
+                    "[bold cyan]PlanForge[/bold cyan] Interactive Design Session",
                     classes="title",
                 )
 
@@ -179,9 +179,9 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
 
     def on_mount(self) -> None:
         """Handle app mount."""
-        self.title = "CadAI - Interactive Design Session"
+        self.title = "PlanForge - Interactive Design Session"
         self.sub_title = f"Project: {self.project_path.name}"
-        self._log("[cyan]Welcome to CadAI![/cyan]")
+        self._log("[cyan]Welcome to PlanForge![/cyan]")
         self._log("[dim]Type your design request and press Enter[/dim]")
         self._log("[dim]Commands: help, clear, quit[/dim]")
         self._log("")
@@ -244,7 +244,7 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
             self._log("[dim]Processing...[/dim]")
 
             response = await self._call_agent(command)
-            self._log(f"[green]CadAI:[/green] {response}")
+            self._log(f"[green]PlanForge:[/green] {response}")
 
             if self.current_design and self.current_design.body_data:
                 self._update_preview()
@@ -285,7 +285,7 @@ class CadAIApp(App if TEXTUAL_AVAILABLE else object):
         return create_deep_agent(
             model=chat_model,
             tools=list(CAD_TOOLS),
-            system_prompt="""You are CadAI, an expert 3D CAD designer.
+            system_prompt="""You are PlanForge, an expert 3D CAD designer.
 Use the CAD tools to create and modify designs.
 Always use millimeters (mm) as units.
 After creating/modifying a body, summarize what was done.""",
@@ -294,7 +294,7 @@ After creating/modifying a body, summarize what was done.""",
     def _show_help(self) -> None:
         """Show help information."""
         help_text = """
-[bold cyan]CadAI Commands:[/bold cyan]
+[bold cyan]PlanForge Commands:[/bold cyan]
 
 [bold]Design:[/bold]
   create box 50x50x50    - Create a box
@@ -495,14 +495,14 @@ def run_tui(
             Panel.fit(
                 "[bold red]Textual is required for TUI mode.[/bold red]\n\n"
                 "Install with: pip install textual\n"
-                "Or use CLI mode: cadai design [prompt]",
+                "Or use CLI mode: planforge design [prompt]",
                 title="TUI Not Available",
                 border_style="red",
             )
         )
         return
 
-    app = CadAIApp(
+    app = PlanForgeApp(
         project_path=project_path,
         model=model,
         provider=provider,
