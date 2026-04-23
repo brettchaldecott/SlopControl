@@ -1,7 +1,12 @@
 import json
 from typing import Any, Optional
 
-from llmcad import Body
+try:
+    from llmcad import Body
+    LLMCAD_AVAILABLE = True
+except ImportError:
+    LLMCAD_AVAILABLE = False
+    Body = None
 
 
 def serialize_body(data: dict) -> str:
@@ -66,7 +71,7 @@ def _get_registry() -> dict:
     return _body_registry
 
 
-def get_model_info(body: Body) -> dict:
+def get_model_info(body: Any) -> dict:
     """Extract information from a body.
 
     Args:
