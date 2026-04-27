@@ -1,17 +1,13 @@
-"""PlanForge - AI-Powered CAD Agent for Natural Language 3D Modeling"""
+"""PlanForge - AI-powered plan orchestration for CAD and software development."""
 
-from .agent import create_cad_agent
-from planforge.domains.cad.tools.cad import CAD_TOOLS
-from .tui import run_tui
-from planforge.domains.cad.tools.session_manager import SessionManager, DesignState
-from planforge.domains.cad.tools.design_history import DesignHistory
+from .agent import create_agent, create_cad_agent, run_design_session
+from planforge.core.orchestrator import Conductor, PluginRegistry
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
+    "create_agent",
     "create_cad_agent",
-    "CAD_TOOLS",
-    "run_tui",
-    "SessionManager",
-    "DesignState",
-    "DesignHistory",
+    "run_design_session",
+    "Conductor",
+    "PluginRegistry",
 ]

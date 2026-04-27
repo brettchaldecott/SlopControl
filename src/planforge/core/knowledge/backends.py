@@ -333,7 +333,7 @@ def create_backend(
     if force in (None, "qdrant"):
         try:
             # Verify qdrant-client is available. FastEmbed may require
-the optional ``[fastembed]`` extra to compute embeddings locally.
+            # the optional ``[fastembed]`` extra to compute embeddings locally.
             import qdrant_client  # noqa: F401
             import fastembed  # noqa: F401
             p = path or _DEFAULT_PATH

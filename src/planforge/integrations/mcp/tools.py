@@ -6,10 +6,10 @@ for the CAD tools, allowing AI clients to use PlanForge as a tool server.
 
 from typing import Any, Optional
 
-from ..tools.cad import CAD_TOOLS
-from ..tools.visualization import VISUALIZATION_TOOLS
-from ..tools.git_ops import GIT_TOOLS
-from ..tools.file_ops import FILE_OPS_TOOLS
+from planforge.domains.cad.tools.cad import CAD_TOOLS
+from planforge.domains.cad.tools.visualization import VISUALIZATION_TOOLS
+from planforge.domains.cad.tools.git_ops import GIT_TOOLS
+from planforge.domains.cad.tools.file_ops import FILE_OPS_TOOLS
 
 
 CAD_MCP_TOOLS = CAD_TOOLS + VISUALIZATION_TOOLS + GIT_TOOLS + FILE_OPS_TOOLS

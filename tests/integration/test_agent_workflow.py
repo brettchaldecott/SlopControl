@@ -6,10 +6,17 @@ from pathlib import Path
 
 import pytest
 
+try:
+    import llmcad  # noqa: F401
+    LLMCAD_AVAILABLE = True
+except ImportError:
+    LLMCAD_AVAILABLE = False
+
 
 class TestAgentWorkflow:
     """Integration tests for complete agent workflows."""
 
+    @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_create_box_and_export(self):
         """Test creating a simple box and exporting it."""
         from planforge.tools.cad import create_box, export_model
@@ -27,6 +34,7 @@ class TestAgentWorkflow:
         assert "ref" in data
         assert data["name"] == "test_cube"
 
+    @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_create_cylinder(self):
         """Test cylinder creation."""
         from planforge.tools.cad import create_cylinder
@@ -42,6 +50,7 @@ class TestAgentWorkflow:
         data = json.loads(result)
         assert data["name"] == "test_cylinder"
 
+    @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_create_sphere(self):
         """Test sphere creation."""
         from planforge.tools.cad import create_sphere
@@ -56,6 +65,7 @@ class TestAgentWorkflow:
         data = json.loads(result)
         assert data["name"] == "test_sphere"
 
+    @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_boolean_operations(self):
         """Test boolean operations between bodies."""
         from planforge.tools.cad import create_box, create_cylinder, union_bodies, cut_body
@@ -193,6 +203,7 @@ class TestFileOperations:
         assert "test_project" in result
         assert (tmp_path / "test_project" / "designs").exists()
 
+    @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_save_and_load_design(self, tmp_path):
         """Test saving and loading a design state."""
         from planforge.tools.file_ops import save_design_state, load_design_state
