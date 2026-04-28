@@ -44,6 +44,26 @@ Output ONLY valid JSON matching this schema:
 }}
 """
 
+PLAN_MODIFICATION_PROMPT = """You are SlopControl's planning agent.
+You need to modify an existing plan based on user feedback.
+
+Current plan:
+{current_plan}
+
+Knowledge base context:
+{kb_context}
+
+Modification request: {modification}
+
+Output the COMPLETE updated plan as valid JSON with:
+{{
+  "requirements": [str],
+  "decisions": [{{"title": str, "decision": str, "rationale": str, ...}}],
+  "implementation_steps": [{{"description": str, "script": str | null, ...}}],
+  "verification_log": [{{"version": "1.0", "check": str, "result": "pending", "notes": str}}]
+}}
+"""
+
 
 class PlanGenerator:
     """Generate DesignPlan from user requirements using the gateway + KB."""
@@ -97,6 +117,63 @@ class PlanGenerator:
             decisions=plan_dict.get("decisions", []),
             implementation_steps=plan_dict.get("implementation_steps", []),
             verification_log=plan_dict.get("verification_log", []),
+        )
+
+    def ask_clarifications(self, request: str, k: int = 3) -> list[str]:
+        """Ask 2-3 clarifying questions about the user's request."""
+        prompt = (
+            "The user wants to build: " + request + "\n\n"
+            "Ask 2-3 short clarifying questions to better understand their needs. "
+            "Output ONLY a JSON array of strings:\n"
+            '["question 1", "question 2", "question 3"]'
+        )
+        try:
+            response = self.model.invoke([HumanMessage(content=prompt)])
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            questions = self._extract_json(content)
+            if isinstance(questions, list):
+                return [q for q in questions if isinstance(q, str)][:3]
+        except Exception as exc:
+            logger.warning("Failed to generate clarifications: %s", exc)
+        return []
+
+    def modify(
+        self,
+        current_plan: DesignPlan,
+        modification: str,
+        retriever: "KnowledgeRetriever | None" = None,
+    ) -> DesignPlan:
+        """Modify an existing plan based on user feedback."""
+        kb_context = ""
+        if retriever or self.retriever:
+            r = retriever or self.retriever
+            kb_context = r.get_context_string(query=modification, k=2)
+
+        # Serialize current plan for the prompt
+        from dataclasses import asdict
+        import json as _json
+        current_json = _json.dumps(asdict(current_plan), indent=2, default=str)
+
+        prompt = PLAN_MODIFICATION_PROMPT.format(
+            current_plan=current_json,
+            kb_context=kb_context or "(no knowledge base context available)",
+            modification=modification,
+        )
+
+        response = self.model.invoke([SystemMessage(content=prompt)])
+        content = response.content if isinstance(response.content, str) else str(response.content)
+
+        plan_dict = self._extract_json(content)
+
+        return DesignPlan(
+            name=current_plan.name,
+            domain=current_plan.domain,
+            tags=current_plan.tags,
+            agents=current_plan.agents,
+            requirements=plan_dict.get("requirements", current_plan.requirements),
+            decisions=plan_dict.get("decisions", current_plan.decisions),
+            implementation_steps=plan_dict.get("implementation_steps", current_plan.implementation_steps),
+            verification_log=plan_dict.get("verification_log", current_plan.verification_log),
         )
 
     # ----------------------------------------------------------------

@@ -235,7 +235,7 @@ def orchestrate(
 
 @app.command()
 def plan(
-    action: str = typer.Argument("show", help="Action: create, show, generate, update"),
+    action: Optional[str] = typer.Argument(None, help="Action: create, show, generate, update, interactive"),
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     name: str = typer.Option("", "--name", "-n", help="Plan name"),
     request: str = typer.Option("", "--request", "-r", help="Requirements for plan generation"),
@@ -244,6 +244,13 @@ def plan(
     """Manage the slop_control.md artifact."""
     project_dir = _project_dir(project)
     plan_path = _plan_path(project_dir, None)
+
+    # Determine default action
+    if action is None:
+        if plan_path.exists():
+            action = "show"
+        else:
+            action = "interactive"
 
     if action == "create":
         from slopcontrol.core.plan.schema import DesignPlan
@@ -259,7 +266,9 @@ def plan(
     elif action == "generate":
         if not request:
             request = typer.prompt("Requirements for the plan")
-        generator = PlanGenerator()
+        kb_ctx = KnowledgeContext.get()
+        kb_ctx.ensure_loaded()
+        generator = PlanGenerator(retriever=kb_ctx.retriever)
         plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
         render_plan(plan_obj, plan_path)
         display_success(f"Generated plan at {plan_path}")
@@ -277,12 +286,114 @@ def plan(
         for req in plan_obj.requirements:
             console.print(f"  - {req}")
 
+    elif action == "interactive":
+        _interactive_plan(project_dir, plan_path, name=name or project_dir.name, domain=domain)
+
     elif action == "update":
         display_info("Use 'slopcontrol plan generate' to regenerate with new requirements.")
 
     else:
         display_error(f"Unknown action: {action}")
         raise typer.Exit(1)
+
+
+def _interactive_plan(
+    project_dir: Path,
+    plan_path: Path,
+    name: str = "",
+    domain: str = "code",
+) -> None:
+    """Interactive prompt-driven plan generation."""
+    kb_ctx = KnowledgeContext.get()
+    kb_ctx.ensure_loaded()
+
+    # Phase 1: Understand what the user wants
+    console.print("\n[bold cyan]Interactive Plan Builder[/bold cyan]")
+    console.print("Let's build your plan step by step.\n")
+
+    request = typer.prompt("What do you want to build?")
+    if not request.strip():
+        display_error("A description is required.")
+        raise typer.Exit(1)
+
+    # Optional: quick summary from KB
+    kb_context = ""
+    if kb_ctx.retriever:
+        try:
+            kb_context = kb_ctx.retriever.get_context_string(query=request, k=3)
+            if kb_context:
+                display_info("Loaded relevant knowledge for context.")
+        except Exception:
+            pass  # Silent fallback if KB not available
+
+    # Phase 2: Generate draft
+    generator = PlanGenerator(retriever=kb_ctx.retriever)
+    plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
+
+    # Phase 3: Review loop
+    while True:
+        _display_plan_summary(plan_obj)
+        choice = typer.prompt(
+            "\n[Continue / Modify / Regenerate / Save]?",
+            default="continue",
+        ).strip().lower()
+
+        if choice in ("c", "continue"):
+            break
+        elif choice in ("m", "modify"):
+            mod = typer.prompt("What would you like to change?")
+            plan_obj = generator.modify(plan_obj, modification=mod, retriever=kb_ctx.retriever)
+        elif choice in ("r", "regenerate"):
+            plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
+        elif choice in ("s", "save"):
+            break
+        else:
+            display_warning("Unknown choice. Try: continue / modify / regenerate / save")
+
+    # Phase 4: Save
+    plan_obj.version = "1.0"
+    plan_obj.status = "draft"
+    render_plan(plan_obj, plan_path)
+
+    # Index into KB
+    if kb_ctx.indexer:
+        try:
+            kb_ctx.indexer.index_text(
+                source=str(plan_path),
+                text=plan_path.read_text(),
+            )
+            display_info("Plan indexed in knowledge base.")
+        except Exception as exc:
+            logger.debug("Failed to index plan: %s", exc)
+
+    # Git commit via PlanVersioner
+    from slopcontrol.core.plan.versioner import PlanVersioner
+    versioner = PlanVersioner()
+    versioner.save(plan_obj, project_dir, message=f"plan: initial draft v1.0 ({plan_obj.name})")
+
+    display_success(f"Plan saved to {plan_path}")
+
+
+def _display_plan_summary(plan) -> None:
+    """Print a concise plan summary for review."""
+    console.print(Panel.fit(
+        f"[bold]{plan.name}[/bold]  (v{plan.version})\n"
+        f"Requirements: {len(plan.requirements)}\n"
+        f"Decisions: {len(plan.decisions)}\n"
+        f"Steps: {len(plan.implementation_steps)}\n"
+        f"Domain: {plan.domain}",
+        title="Plan Preview",
+        border_style="cyan",
+    ))
+    if plan.requirements:
+        console.print("\n[bold]Key Requirements:[/bold]")
+        for req in plan.requirements[:3]:
+            console.print(f"  - {req}")
+    if plan.implementation_steps:
+        console.print("\n[bold]Top Steps:[/bold]")
+        for step in plan.implementation_steps[:3]:
+            desc = step.get("description", "")
+            console.print(f"  • {desc[:60]}{'...' if len(desc) > 60 else ''}")
 
 
 # ----------------------------------------------------------------------

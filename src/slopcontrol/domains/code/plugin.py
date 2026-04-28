@@ -46,6 +46,29 @@ class CodePlugin(DomainPlugin):
         (project_path / "src").mkdir(parents=True, exist_ok=True)
         (project_path / "tests").mkdir(parents=True, exist_ok=True)
         (project_path / "docs").mkdir(parents=True, exist_ok=True)
+        (project_path / ".slopcontrol" / "vault").mkdir(parents=True, exist_ok=True)
+
+        gitignore = project_path / ".gitignore"
+        gitignore_lines = [
+            "# SlopControl runtime state\n",
+            ".slopcontrol/orchestration_state.json\n",
+            ".slopcontrol/checkpoints/\n",
+            ".slopcontrol/competition/\n",
+            "# Keep vault notes in version control\n",
+            "!.slopcontrol/vault/\n",
+            "\n",
+            "# Python\n",
+            "__pycache__/\n",
+            "*.py[cod]\n",
+            ".venv/\n",
+            "venv/\n",
+            "\n",
+            "# IDE\n",
+            ".idea/\n",
+            ".vscode/\n",
+        ]
+        if not gitignore.exists():
+            gitignore.write_text("".join(gitignore_lines), encoding="utf-8")
 
     # -- Capabilities ---------------------------------------------------
 
