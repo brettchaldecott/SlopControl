@@ -1,1 +1,1 @@
-"""PlanForge integrations – OpenCode, Claude Code, Cursor, MCP."""
+"""SlopControl integrations – OpenCode, Claude Code, Cursor, MCP."""

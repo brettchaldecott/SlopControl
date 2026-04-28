@@ -75,8 +75,8 @@ def run_script(
     # Build the whitelisted-path environment
     whitelist = CAD_SCRIPT_IMPORTS if domain == "cad" else CODE_SCRIPT_IMPORTS
     env = os.environ.copy()
-    env["PLANFORGE_DOMAIN"] = domain
-    env["PLANFORGE_PROJECT_DIR"] = str(project_dir)
+    env["SLOPCONTROL_DOMAIN"] = domain
+    env["SLOPCONTROL_PROJECT_DIR"] = str(project_dir)
 
     # Write a wrapper that validates imports before running the script
     with tempfile.NamedTemporaryFile(

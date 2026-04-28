@@ -1,4 +1,4 @@
-"""Tests for the PlanForge agent factory."""
+"""Tests for the SlopControl agent factory."""
 
 import pytest
 

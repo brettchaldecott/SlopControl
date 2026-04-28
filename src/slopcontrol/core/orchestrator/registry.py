@@ -91,7 +91,7 @@ class PluginRegistry:
         """Return an external adapter by name (e.g. ``"opencode"``, ``"cursor"``)."""
         if name.lower() == "claude":
             raise RuntimeError(
-                "The Claude adapter has been removed from PlanForge. "
+                "The Claude adapter has been removed from SlopControl. "
                 "Use 'opencode' or 'cursor' instead."
             )
 

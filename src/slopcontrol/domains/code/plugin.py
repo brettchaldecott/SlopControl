@@ -1,4 +1,4 @@
-"""Code domain plugin for PlanForge.
+"""Code domain plugin for SlopControl.
 
 Provides tools for software development: file I/O, testing, linting,
 dependency management, and version control.
@@ -13,7 +13,7 @@ from slopcontrol.core.domain_base import DomainPlugin
 
 
 class CodePlugin(DomainPlugin):
-    """PlanForge plugin for software development."""
+    """SlopControl plugin for software development."""
 
     name = "code"
     display_name = "Software Development"

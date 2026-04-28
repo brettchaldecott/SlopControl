@@ -1,7 +1,7 @@
-"""MCP Server for PlanForge.
+"""MCP Server for SlopControl.
 
 This module provides an MCP (Model Context Protocol) server implementation
-that exposes PlanForge CAD tools to AI clients like Cursor, Claude Desktop, etc.
+that exposes SlopControl CAD tools to AI clients like Cursor, Claude Desktop, etc.
 """
 
 import asyncio
@@ -33,8 +33,8 @@ logger = structlog.get_logger()
 ALL_TOOLS = CAD_TOOLS + VISUALIZATION_TOOLS + GIT_TOOLS + FILE_OPS_TOOLS
 
 
-class PlanForgeMCPServer:
-    """MCP Server for PlanForge CAD tools."""
+class SlopControlMCPServer:
+    """MCP Server for SlopControl CAD tools."""
 
     def __init__(self, name: str = "slopcontrol"):
         """Initialize the MCP server.
@@ -129,13 +129,13 @@ class PlanForgeMCPServer:
             raise ValueError(f"Unsupported transport: {transport}")
 
 
-def create_mcp_server() -> PlanForgeMCPServer:
+def create_mcp_server() -> SlopControlMCPServer:
     """Create an MCP server instance.
 
     Returns:
-        Configured PlanForgeMCPServer instance
+        Configured SlopControlMCPServer instance
     """
-    return PlanForgeMCPServer()
+    return SlopControlMCPServer()
 
 
 async def run_server(transport: str = "stdio", port: Optional[int] = None):
@@ -153,7 +153,7 @@ def main():
     """Main entry point for MCP server."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="PlanForge MCP Server")
+    parser = argparse.ArgumentParser(description="SlopControl MCP Server")
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse"],

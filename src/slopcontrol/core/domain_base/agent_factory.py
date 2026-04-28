@@ -26,7 +26,7 @@ def create_domain_agent(
 
     Args:
         plugin: The domain plugin whose tools / prompt / skills are used.
-        model: LLM model (defaults to ``PLANFORGE_MODEL`` → gateway).
+        model: LLM model (defaults to ``SLOPCONTROL_MODEL`` → gateway).
         project_dir: Working directory for the agent (default ``./projects``).
         **deepagents_kwargs: Passed through to ``create_deep_agent``.
 
@@ -38,9 +38,9 @@ def create_domain_agent(
 
     if model is None:
         from slopcontrol.core.providers.registry import get_model
-        model = get_model(os.environ.get("PLANFORGE_MODEL"))
+        model = get_model(os.environ.get("SLOPCONTROL_MODEL"))
 
-    resolved_dir = Path(project_dir or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects"))
+    resolved_dir = Path(project_dir or os.environ.get("SLOPCONTROL_PROJECT_DIR", "./projects"))
     backend = FilesystemBackend(root_dir=str(resolved_dir))
 
     system_prompt = plugin.get_agent_prompt()

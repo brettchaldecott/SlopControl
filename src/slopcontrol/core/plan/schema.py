@@ -1,4 +1,4 @@
-"""Plan schema – the datamodel for the ``plan_forge.md`` artifact.
+"""Plan schema – the datamodel for the ``slop_control.md`` artifact.
 
 The plan is the primary artifact.  Code, CAD scripts, and
 verification results are disposable products generated from it.
@@ -13,9 +13,9 @@ from typing import Any
 
 @dataclass
 class DesignPlan:
-    """Primary artifact for every PlanForge project.
+    """Primary artifact for every SlopControl project.
 
-    Rendered as ``plan_forge.md`` with YAML frontmatter + structured
+    Rendered as ``slop_control.md`` with YAML frontmatter + structured
     body sections.  Append-only after initial creation.
     """
 

@@ -20,7 +20,7 @@ from .schema import DesignPlan
 
 logger = logging.getLogger(__name__)
 
-PLAN_GENERATION_PROMPT = """You are PlanForge's planning agent.
+PLAN_GENERATION_PROMPT = """You are SlopControl's planning agent.
 Your job is to take user requirements and turn them into a structured DesignPlan.
 
 You have access to the following knowledge base context:

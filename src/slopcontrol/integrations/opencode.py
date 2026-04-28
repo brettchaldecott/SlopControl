@@ -1,7 +1,7 @@
 """OpenCode integration adapter.
 
 Invokes the local ``opencode`` CLI to run coding tasks based on a
-PlanForge plan section.  The plan is the artifact; opencode is the
+SlopControl plan section.  The plan is the artifact; opencode is the
 execution agent that produces the code product.
 """
 

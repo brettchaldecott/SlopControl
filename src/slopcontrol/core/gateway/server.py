@@ -27,7 +27,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     chain = create_fallback_chain(cfg, temperature=0)
     _state["config"] = cfg
     _state["chain"] = chain
-    logger.info("PlanForge gateway started on %s", cfg.gateway_url)
+    logger.info("SlopControl gateway started on %s", cfg.gateway_url)
     yield
     _state.clear()
 
@@ -35,7 +35,7 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_gateway_app() -> FastAPI:
     """Factory that returns the configured FastAPI application."""
     app = FastAPI(
-        title="PlanForge LLM Gateway",
+        title="SlopControl LLM Gateway",
         version="0.2.0",
         lifespan=_lifespan,
     )

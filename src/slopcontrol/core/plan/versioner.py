@@ -1,9 +1,9 @@
 """Plan versioner – append-only versioning with git + snapshot files.
 
 Strategy:
-- The working ``plan_forge.md`` is the current version.
+- The working ``slop_control.md`` is the current version.
 - Git tracks every change.
-- Snapshot files (``plan_forge_v1.0.md`` …) are created explicitly
+- Snapshot files (``slop_control_v1.0.md`` …) are created explicitly
   for human browsing.  This mirrors how Obsidian versions notes.
 """
 
@@ -32,7 +32,7 @@ class PlanVersioner:
     def save(self, plan: DesignPlan, project_dir: Path, message: str = "") -> Path:
         """Save the plan, snapshot old version, and git-commit.
 
-        Returns: path to the saved ``plan_forge.md``.
+        Returns: path to the saved ``slop_control.md``.
         """
         plan_path = self._plan_path(project_dir)
         snap = self._snapshot_path(project_dir, plan.version)
@@ -77,7 +77,7 @@ class PlanVersioner:
 
         try:
             subprocess.run(
-                ["git", "add", "plan_forge.md", "plan_forge_*.md"],
+                ["git", "add", "slop_control.md", "slop_control_*.md"],
                 cwd=project_dir,
                 check=True,
                 capture_output=True,
@@ -99,8 +99,8 @@ class PlanVersioner:
 
     @staticmethod
     def _plan_path(project_dir: Path) -> Path:
-        return project_dir / "plan_forge.md"
+        return project_dir / "slop_control.md"
 
     @staticmethod
     def _snapshot_path(project_dir: Path, version: str) -> Path:
-        return project_dir / f"plan_forge_{version}.md"
+        return project_dir / f"slop_control_{version}.md"

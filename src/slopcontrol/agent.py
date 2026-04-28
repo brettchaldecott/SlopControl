@@ -1,4 +1,4 @@
-"""PlanForge agent factory.
+"""SlopControl agent factory.
 
 Provides backward-compatible :func:`create_cad_agent` plus a new
 :func:`create_agent` that consults the Conductor / domain plugin system.
@@ -59,7 +59,7 @@ def create_agent(
 
     # Resolve model
     if model is None:
-        model = os.environ.get("PLANFORGE_MODEL", "opencode:big-pickle")
+        model = os.environ.get("SLOPCONTROL_MODEL", "opencode:big-pickle")
     if isinstance(model, str):
         chat_model = get_model(model, provider=provider)
     else:
@@ -82,11 +82,11 @@ def run_design_session(
 ) -> dict[str, Any]:
     """Run a single design session.
 
-    If a ``plan_forge.md`` exists in the project directory, infers the
+    If a ``slop_control.md`` exists in the project directory, infers the
     domain from it; otherwise defaults to ``"cad"``.
     """
-    resolved = Path(project_dir or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects"))
-    plan_path = resolved / "plan_forge.md"
+    resolved = Path(project_dir or os.environ.get("SLOPCONTROL_PROJECT_DIR", "./projects"))
+    plan_path = resolved / "slop_control.md"
 
     domain = "cad"
     if plan_path.exists():

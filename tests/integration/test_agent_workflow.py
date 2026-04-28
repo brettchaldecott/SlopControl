@@ -1,4 +1,4 @@
-"""Integration tests for the PlanForge agent workflow."""
+"""Integration tests for the SlopControl agent workflow."""
 
 import json
 import tempfile

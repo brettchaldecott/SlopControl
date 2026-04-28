@@ -37,7 +37,7 @@ def load(project_dir: Path) -> OrchestrationState:
         raise FileNotFoundError(f"No orchestration state found at {src}")
 
     data = json.loads(src.read_text())
-    plan = read_plan(project_dir / "plan_forge.md")
+    plan = read_plan(project_dir / "slop_control.md")
 
     state = OrchestrationState(
         plan=plan,

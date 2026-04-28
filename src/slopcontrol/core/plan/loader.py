@@ -12,7 +12,7 @@ from .schema import DesignPlan
 
 
 class PlanLoader:
-    """Load ``plan_forge.md`` from disk."""
+    """Load ``slop_control.md`` from disk."""
 
     def __init__(self, renderer: PlanRenderer | None = None) -> None:
         self.renderer = renderer or PlanRenderer()

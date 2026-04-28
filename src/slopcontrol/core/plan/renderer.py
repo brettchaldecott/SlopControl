@@ -1,6 +1,6 @@
 """Plan renderer – convert ``DesignPlan`` → Markdown, and parse back.
 
-Output filename: ``plan_forge.md`` (the primary artifact).
+Output filename: ``slop_control.md`` (the primary artifact).
 """
 
 from __future__ import annotations
@@ -16,9 +16,10 @@ from .schema import DesignPlan
 
 
 class PlanRenderer:
-    """Render and parse ``plan_forge.md`` files."""
+    """Render and parse ``slop_control.md`` files."""
 
     SEPARATOR = "\n---\n"
+    DEFAULT_FILENAME = "slop_control.md"
 
     def render(self, plan: DesignPlan) -> str:
         """Return full markdown text for the plan artifact."""
@@ -41,54 +42,47 @@ class PlanRenderer:
         if plan.decisions:
             lines.append("")
             lines.append("# Design Decisions")
-            for i, d in enumerate(plan.decisions, 1):
-                title = d.get("title", f"Decision {i}")
-                decision = d.get("decision", "")
-                rationale = d.get("rationale", "")
+            for i, decision in enumerate(plan.decisions, 1):
                 lines.append(f"")
-                lines.append(f"## {i}. {title}")
-                lines.append(f"- **Decision:** {decision}")
-                if rationale:
-                    lines.append(f"- **Rationale:** {rationale}")
-                for k, v in d.items():
-                    if k not in ("title", "decision", "rationale"):
-                        lines.append(f"- **{k}:** {v}")
+                lines.append(f"## {i}. {decision.get('title', 'Decision')}")
+                for key, val in decision.items():
+                    if key != "title":
+                        lines.append(f"- **{key.capitalize()}**: {val}")
 
-        # ── Implementation Steps ─────────────────────────────────────
+        # ── Implementation Steps ──────────────────────────────────────
         if plan.implementation_steps:
             lines.append("")
             lines.append("# Implementation Steps")
             for i, step in enumerate(plan.implementation_steps, 1):
                 desc = step.get("description", "")
                 lines.append(f"{i}. {desc}")
-                script = step.get("script", "")
-                if script:
-                    lines.append(f"   - **Script:** `{script}`")
-                for k, v in step.items():
-                    if k not in ("description", "script"):
-                        lines.append(f"   - **{k}:** {v}")
+                # Sub-properties
+                for key, val in step.items():
+                    if key != "description":
+                        lines.append(f"   - **{key}**: `{val}`")
 
-        # ── Verification Log ───────────────────────────────────────
+        # ── Verification Log ────────────────────────────────────────
         if plan.verification_log:
             lines.append("")
             lines.append("# Verification Log")
             lines.append("| Version | Check | Result | Notes |")
             lines.append("|---|---|---|---|")
             for entry in plan.verification_log:
-                lines.append(
-                    f"| {entry.get('version','')} | {entry.get('check','')} |"
-                    f" {entry.get('result','')} | {entry.get('notes','')} |"
-                )
+                v = entry.get("version", "")
+                c = entry.get("check", "")
+                r = entry.get("result", "")
+                n = entry.get("notes", "")
+                lines.append(f"| {v} | {c} | {r} | {n} |")
 
         # ── Appendices ───────────────────────────────────────────────
         if plan.appendices:
             lines.append("")
             lines.append("# Appendices")
-            for i, apx in enumerate(plan.appendices, 1):
-                title = apx.get("title", f"Appendix {i}")
+            for appendix in plan.appendices:
+                title = appendix.get("title", "Appendix")
+                content = appendix.get("content", "")
                 lines.append(f"")
-                lines.append(f"## Appendix {chr(64 + i)}: {title}")
-                content = apx.get("content", "")
+                lines.append(f"## {title}")
                 lines.append(content)
 
         return "\n".join(lines) + "\n"
@@ -100,11 +94,11 @@ class PlanRenderer:
     # ── Parsing ──────────────────────────────────────────────────
 
     def parse(self, text: str) -> DesignPlan:
-        """Parse a ``plan_forge.md`` string back into ``DesignPlan``."""
+        """Parse a ``slop_control.md`` string back into ``DesignPlan``."""
         # Extract YAML frontmatter
         fm_match = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
         if not fm_match:
-            raise ValueError("Missing YAML frontmatter in plan_forge.md")
+            raise ValueError("Missing YAML frontmatter in slop_control.md")
 
         front = yaml.safe_load(fm_match.group(1))
         body = text[fm_match.end() :]

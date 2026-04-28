@@ -1,4 +1,4 @@
-"""LLM Provider Registry - Unified client for PlanForge.
+"""LLM Provider Registry - Unified client for SlopControl.
 
 Two usage modes:
 
@@ -55,7 +55,7 @@ def _create_gateway_client() -> "BaseChatModel":
     api_key = "slopcontrol-gateway-no-key"
 
     # Let user override via env just in case they want to skip the gateway
-    base_url = os.environ.get("PLANFORGE_GATEWAY_URL", base_url)
+    base_url = os.environ.get("SLOPCONTROL_GATEWAY_URL", base_url)
 
     return ChatOpenAI(
         model="slopcontrol-gateway",
@@ -69,7 +69,7 @@ def list_available_models(provider: Optional[str] = None) -> dict[str, list[str]
     """List available models for all providers.
 
     This is purely informational – the actual routing is handled by the
-    gateway configuration (``PLANFORGE_LLM_CHAIN``).
+    gateway configuration (``SLOPCONTROL_LLM_CHAIN``).
     """
     all_models = {
         "kimi": [

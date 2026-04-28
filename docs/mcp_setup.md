@@ -1,10 +1,10 @@
 # MCP Setup Guide
 
-PlanForge can run as an MCP (Model Context Protocol) server, exposing CAD tools to AI coding assistants like Cursor, Claude Desktop, and other MCP-compatible clients.
+SlopControl can run as an MCP (Model Context Protocol) server, exposing CAD tools to AI coding assistants like Cursor, Claude Desktop, and other MCP-compatible clients.
 
 ## What is MCP?
 
-MCP (Model Context Protocol) is a standard protocol that allows AI models to use external tools. By running PlanForge as an MCP server, AI clients can access CAD tools directly.
+MCP (Model Context Protocol) is a standard protocol that allows AI models to use external tools. By running SlopControl as an MCP server, AI clients can access CAD tools directly.
 
 ## Starting the MCP Server
 
@@ -151,7 +151,7 @@ Done! The cube has been created and exported to cube.stl.
 
 ### Server won't start
 
-Check that PlanForge is installed:
+Check that SlopControl is installed:
 ```bash
 slopcontrol --version
 ```

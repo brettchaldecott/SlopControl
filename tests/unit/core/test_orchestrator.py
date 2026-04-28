@@ -83,7 +83,7 @@ class TestConductor:
         from slopcontrol.core.plan.renderer import render_plan
 
         plan = DesignPlan(name="rt", domain="code")
-        render_plan(plan, tmp_path / "plan_forge.md")
+        render_plan(plan, tmp_path / "slop_control.md")
         state = OrchestrationState(plan=plan, project_dir=tmp_path)
         state.mark_step(0, StepStatus.COMPLETED)
         save(state, tmp_path)

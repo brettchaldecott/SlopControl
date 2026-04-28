@@ -209,7 +209,7 @@ def init_git_repo(
 
     repo = Repo(repo_path)
     config_writer = repo.config_writer()
-    config_writer.set_value("user", "name", "PlanForge Agent").release()
+    config_writer.set_value("user", "name", "SlopControl Agent").release()
     config_writer.set_value("user", "email", "slopcontrol@agent.local").release()
 
     gitignore_path = repo_path / ".gitignore"
@@ -233,7 +233,7 @@ projects/
 """)
 
     repo.index.add([".gitignore"])
-    repo.index.commit("Initial commit: PlanForge project setup")
+    repo.index.commit("Initial commit: SlopControl project setup")
 
     return f"Initialized git repository at {repo_path}"
 

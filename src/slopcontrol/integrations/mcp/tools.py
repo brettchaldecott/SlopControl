@@ -1,7 +1,7 @@
-"""MCP server tools for PlanForge.
+"""MCP server tools for SlopControl.
 
 This module provides MCP (Model Context Protocol) tool definitions
-for the CAD tools, allowing AI clients to use PlanForge as a tool server.
+for the CAD tools, allowing AI clients to use SlopControl as a tool server.
 """
 
 from typing import Any, Optional

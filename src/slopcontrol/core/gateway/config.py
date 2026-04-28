@@ -53,9 +53,9 @@ class GatewayConfig:
     def from_env(cls) -> "GatewayConfig":
         """Load configuration from environment variables."""
         return cls(
-            gateway_host=os.environ.get("PLANFORGE_GATEWAY_HOST", cls.gateway_host),
-            gateway_port=int(os.environ.get("PLANFORGE_GATEWAY_PORT", cls.gateway_port)),
-            llm_chain=os.environ.get("PLANFORGE_LLM_CHAIN", cls.llm_chain),
+            gateway_host=os.environ.get("SLOPCONTROL_GATEWAY_HOST", cls.gateway_host),
+            gateway_port=int(os.environ.get("SLOPCONTROL_GATEWAY_PORT", cls.gateway_port)),
+            llm_chain=os.environ.get("SLOPCONTROL_LLM_CHAIN", cls.llm_chain),
             kimi_api_key=os.environ.get("KIMI_API_KEY"),
             kimi_api_url=os.environ.get("KIMI_API_URL", cls.kimi_api_url),
             qwen_api_key=os.environ.get("QWEN_API_KEY"),

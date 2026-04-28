@@ -1,7 +1,7 @@
 """Auto-discovery of local LLM servers.
 
 Probes common local ports on startup and injects working models into the
-fallback chain.  This lets PlanForge use LM Studio, vLLM, llama.cpp, etc.
+fallback chain.  This lets SlopControl use LM Studio, vLLM, llama.cpp, etc.
 without manual configuration.
 """
 

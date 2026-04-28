@@ -1,4 +1,4 @@
-"""PlanForge - AI-powered plan orchestration for CAD and software development."""
+"""SlopControl - AI-powered plan orchestration for CAD and software development."""
 
 from .agent import create_agent, create_cad_agent, run_design_session
 from slopcontrol.core.orchestrator import Conductor, PluginRegistry

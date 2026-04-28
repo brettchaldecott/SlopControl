@@ -1,4 +1,4 @@
-"""PlanForge domain plugin foundation.
+"""SlopControl domain plugin foundation.
 
 Provides ``DomainPlugin`` and ``DomainSession`` base classes plus the
 ``create_domain_agent`` factory.

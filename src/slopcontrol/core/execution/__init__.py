@@ -1,1 +1,1 @@
-"""PlanForge Execution Engine – sandbox for generated scripts."""
+"""SlopControl Execution Engine – sandbox for generated scripts."""

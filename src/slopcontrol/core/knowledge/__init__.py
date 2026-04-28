@@ -1,4 +1,4 @@
-"""PlanForge Knowledge Base – Qdrant-first with RAPTOR summarization."""
+"""SlopControl Knowledge Base – Qdrant-first with RAPTOR summarization."""
 
 from .backends import create_backend, VectorBackend
 from .indexer import KnowledgeIndexer

@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class Conductor:
-    """Top-level orchestrator for PlanForge.
+    """Top-level orchestrator for SlopControl.
 
     Loads a :class:`DesignPlan`, identifies the required domain agents,
     executes each implementation step in order, manages cross-domain
@@ -254,7 +254,7 @@ class Conductor:
         step: dict[str, Any],
         plugin: DomainPlugin,
     ) -> None:
-        """Run one step using a PlanForge domain agent."""
+        """Run one step using a SlopControl domain agent."""
         state = self.state
         assert state is not None
 

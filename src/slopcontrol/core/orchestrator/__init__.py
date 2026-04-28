@@ -1,4 +1,4 @@
-"""PlanForge orchestrator — central conductor for multi-domain plans."""
+"""SlopControl orchestrator — central conductor for multi-domain plans."""
 
 from .conductor import Conductor
 from .protocol import HandoffArtifact, StepStatus, AgentType

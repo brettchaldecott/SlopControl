@@ -70,15 +70,15 @@ Design History:
 ============================================================
 1. a3f8b2c | 2024-01-15 14:30
    Add fillet to edges
-   by PlanForge Agent
+   by SlopControl Agent
 
 2. b4c9d3e | 2024-01-15 14:28
    Increase height to 80mm
-   by PlanForge Agent
+   by SlopControl Agent
 
 3. c5d0e4f | 2024-01-15 14:25
    Initial cube with hole
-   by PlanForge Agent
+   by SlopControl Agent
 ```
 
 ## Interactive Mode
@@ -116,5 +116,5 @@ wall thickness.
 
 ## Next Steps
 
-- [MCP Setup](mcp_setup.md) - Use PlanForge tools from AI coding assistants
+- [MCP Setup](mcp_setup.md) - Use SlopControl tools from AI coding assistants
 - [Design Patterns](design_patterns.md) - Common CAD design patterns

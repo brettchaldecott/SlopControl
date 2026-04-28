@@ -1,4 +1,4 @@
-"""PlanForge Plan System – schema, generation, rendering, versioning."""
+"""SlopControl Plan System – schema, generation, rendering, versioning."""
 
 from .schema import DesignPlan
 from .generator import PlanGenerator

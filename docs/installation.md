@@ -20,8 +20,8 @@ uv add cadAI
 ## Install for Development
 
 ```bash
-git clone https://github.com/yourusername/PlanForge.git
-cd PlanForge
+git clone https://github.com/yourusername/SlopControl.git
+cd SlopControl
 uv venv
 source .venv/bin/activate
 uv pip install -e ".[dev]"
@@ -30,7 +30,7 @@ uv pip install -e ".[dev]"
 ## Verify Installation
 
 ```bash
-python -c "from slopcontrol import create_cad_agent; print('PlanForge installed successfully!')"
+python -c "from slopcontrol import create_cad_agent; print('SlopControl installed successfully!')"
 ```
 
 ## Environment Setup
@@ -48,13 +48,13 @@ ANTHROPIC_API_KEY=your_anthropic_api_key_here
 OLLAMA_BASE_URL=http://localhost:11434
 
 # Optional: Default settings
-PLANFORGE_MODEL=openai:gpt-4o
-PLANFORGE_PROJECT_DIR=./projects
+SLOPCONTROL_MODEL=openai:gpt-4o
+SLOPCONTROL_PROJECT_DIR=./projects
 ```
 
 ## Dependencies
 
-PlanForge requires the following packages:
+SlopControl requires the following packages:
 
 - **deepagents** - Agent framework with planning and filesystem tools
 - **llmcad** - LLM-friendly CAD library built on OpenCASCADE

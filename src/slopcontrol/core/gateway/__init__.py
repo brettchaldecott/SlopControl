@@ -1,4 +1,4 @@
-"""PlanForge LLM Gateway - Local OpenAI-compatible API server."""
+"""SlopControl LLM Gateway - Local OpenAI-compatible API server."""
 
 from .server import create_gateway_app
 from .config import GatewayConfig

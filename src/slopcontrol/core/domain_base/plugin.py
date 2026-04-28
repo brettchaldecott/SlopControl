@@ -13,7 +13,7 @@ from typing import Any
 
 
 class DomainPlugin(ABC):
-    """Contract for a PlanForge domain plugin.
+    """Contract for a SlopControl domain plugin.
 
     A domain is a vertical expertise area (CAD, software, PCB design,
     firmware, etc.).  The Conductor loads plugins via
@@ -53,7 +53,7 @@ class DomainPlugin(ABC):
         prompt_path = Path(self._prompt_path())
         if prompt_path.exists():
             return prompt_path.read_text()
-        return f"You are a PlanForge agent specialising in {self.display_name}."
+        return f"You are a SlopControl agent specialising in {self.display_name}."
 
     # -- Skills --------------------------------------------------------
     def get_skills_dir(self) -> Path | None:

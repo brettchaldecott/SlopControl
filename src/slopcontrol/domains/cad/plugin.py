@@ -1,4 +1,4 @@
-"""CAD domain plugin for PlanForge.
+"""CAD domain plugin for SlopControl.
 
 Wraps all existing CAD tooling — shape creation, booleans, export,
 visualisation, git, file ops — into the :class:`~DomainPlugin` contract.
@@ -13,7 +13,7 @@ from slopcontrol.core.domain_base import DomainPlugin
 
 
 class CADPlugin(DomainPlugin):
-    """PlanForge plugin for 3D CAD design."""
+    """SlopControl plugin for 3D CAD design."""
 
     name = "cad"
     display_name = "CAD Design"

@@ -1,4 +1,8 @@
-"""PlanForge CLI — command-line interface for the multi-domain orchestrator."""
+"""SlopControl CLI — command-line interface for the agentic orchestrator.
+
+Controls AI-generated slop through structured plans, parallel verification,
+and empirical truth-seeking.  Not a CAD tool — an agentic development system.
+"""
 
 from __future__ import annotations
 
@@ -23,17 +27,26 @@ from slopcontrol.core.utils.terminal import (
     display_warning,
 )
 
-from .agent import create_cad_agent, run_design_session
-
 load_dotenv()
 
 app = typer.Typer(
     name="slopcontrol",
-    help="PlanForge — AI-powered plan orchestration for CAD & software",
+    help="SlopControl — Agentic development through plan-controlled verification",
     add_completion=False,
 )
 
 console = Console()
+
+_DEFAULT_PLAN = "slop_control.md"
+
+
+def _project_dir(project: Optional[str]) -> Path:
+    return Path(project or os.environ.get("SLOPCONTROL_PROJECT_DIR", "."))
+
+
+def _plan_path(project_dir: Path, plan_file: Optional[str]) -> Path:
+    return project_dir / (plan_file or _DEFAULT_PLAN)
+
 
 # ----------------------------------------------------------------------
 # init
@@ -43,12 +56,12 @@ console = Console()
 @app.command()
 def init(
     project_name: str = typer.Argument(..., help="Name of the project"),
-    domain: str = typer.Option("cad", "--domain", "-d", help="Primary domain (cad, code)"),
+    domain: str = typer.Option("code", "--domain", "-d", help="Primary domain (cad, code)"),
     multi: bool = typer.Option(False, "--multi", help="Multi-domain workspace"),
     project_dir: Optional[str] = typer.Option(None, "--dir", help="Parent directory"),
     git: bool = typer.Option(True, "--git/--no-git", help="Initialise git"),
 ) -> None:
-    """Initialise a new PlanForge project."""
+    """Initialise a new SlopControl project."""
     parent = Path(project_dir) if project_dir else Path.cwd()
     project_path = parent / project_name
 
@@ -58,7 +71,6 @@ def init(
 
     project_path.mkdir(parents=True)
 
-    # Scaffold from domain plugin(s)
     registry = PluginRegistry()
     registry.auto_discover()
 
@@ -72,10 +84,11 @@ def init(
     readme = project_path / "README.md"
     readme_text = (
         f"# {project_name}\n\n"
-        f"A PlanForge project ({', '.join(domains)}).\n\n"
+        f"A SlopControl project ({', '.join(domains)}).\n\n"
         f"## Usage\n"
         f"```bash\n"
         f"cd {project_path}\n"
+        f"slopcontrol plan generate --request 'Build something'\n"
         f"slopcontrol orchestrate\n"
         f"```\n"
     )
@@ -85,30 +98,34 @@ def init(
 
     if git:
         from slopcontrol.domains.cad.tools.git_ops import init_git_repo
-
         result = init_git_repo.invoke({"project_path": str(project_path)})
         display_success(result)
 
 
 # ----------------------------------------------------------------------
-# orchestrate  —  NEW primary command
+# orchestrate  —  PRIMARY COMMAND
 # ----------------------------------------------------------------------
 
 
 @app.command()
 def orchestrate(
-    plan_file: Optional[str] = typer.Argument(None, help="Path to plan_forge.md (default: ./plan_forge.md)"),
+    plan_file: Optional[str] = typer.Argument(None, help=f"Path to {_DEFAULT_PLAN} (default: ./{_DEFAULT_PLAN})"),
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     section: str = typer.Option("all", "--section", "-s", help="Section to execute"),
     resume: bool = typer.Option(False, "--resume", help="Resume from checkpoint"),
     budget: float = typer.Option(5.0, "--budget", help="Daily USD budget cap"),
     compete: bool = typer.Option(False, "--compete", help="Run competing agents per step"),
-    compete_agents: str = typer.Option("", "--compete-agents", help="Comma-separated agent names to compete"),
-    compete_judge: str = typer.Option("hybrid", "--compete-judge", help="Judge strategy: pass_rate|cost|speed|hybrid"),
+    compete_agents: str = typer.Option("", "--compete-agents", help="Comma-separated agent names"),
+    compete_judge: str = typer.Option("hybrid", "--compete-judge", help="Judge: pass_rate|cost|speed|hybrid"),
 ) -> None:
-    """Execute a plan via the Central Conductor."""
-    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "."))
-    plan_path = project_dir / (plan_file or "plan_forge.md")
+    """Execute a plan via the Central Conductor.
+
+    Reads the plan, discovers domains, dispatches steps, runs verification,
+    checkpoints state.  Use --compete to run multiple agents in parallel
+    for each step and pick the best via verifier pass-rate.
+    """
+    project_dir = _project_dir(project)
+    plan_path = _plan_path(project_dir, plan_file)
 
     if not plan_path.exists():
         display_error(f"No plan found at {plan_path}")
@@ -117,7 +134,7 @@ def orchestrate(
     plan_obj = read_plan(plan_path)
     console.print(
         Panel.fit(
-            f"[bold cyan]PlanForge Conductor[/bold cyan]\n"
+            f"[bold cyan]SlopControl Conductor[/bold cyan]\n"
             f"Plan: {plan_obj.name}\n"
             f"Domain: {plan_obj.domain}\n"
             f"Version: {plan_obj.version}\n"
@@ -128,7 +145,6 @@ def orchestrate(
 
     if resume:
         from slopcontrol.core.orchestrator.persistence import exists, load
-
         if exists(project_dir):
             state = load(project_dir)
             console.print(f"[dim]Resuming from step {state.current_step}[/dim]\n")
@@ -151,7 +167,6 @@ def orchestrate(
         display_info(f"Competition mode: {compete_agents or 'auto'}, judge={compete_judge}")
     result = conductor.run_plan(plan=plan_obj, project_dir=project_dir)
 
-    # Display results
     all_ok = result["success"]
     if all_ok:
         display_success("Orchestration complete — all steps passed")
@@ -170,67 +185,7 @@ def orchestrate(
 
 
 # ----------------------------------------------------------------------
-# design  —  kept for backward compat
-# ----------------------------------------------------------------------
-
-
-@app.command()
-def design(
-    prompt: Optional[str] = typer.Argument(None, help="Design request"),
-    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-    model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model"),
-    provider: str = typer.Option("auto", "--provider", help="LLM provider"),
-    interactive: bool = typer.Option(True, "--interactive/--headless", help="Interactive mode"),
-    stream: bool = typer.Option(True, "--stream/--no-stream", help="Stream responses"),
-    auto_preview: bool = typer.Option(True, "--auto-preview/--no-preview", help="Auto-display previews"),
-) -> None:
-    """Run a legacy CAD design session.
-
-    Deprecated: use ``slopcontrol orchestrate`` for multi-domain plans.
-    """
-    display_warning("'design' is a legacy command. Consider using 'orchestrate' instead.")
-
-    console.print(
-        Panel.fit(
-            "[bold cyan]PlanForge[/bold cyan] — CAD Design",
-            border_style="cyan",
-        )
-    )
-
-    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
-
-    if not Path(project_dir).exists():
-        display_warning(f"Project directory '{project_dir}' does not exist.")
-        create_new = typer.confirm("Create it?", default=True)
-        if create_new:
-            Path(project_dir).mkdir(parents=True, exist_ok=True)
-        else:
-            raise typer.Exit(1)
-
-    if prompt is None:
-        console.print("\n[bold]Enter your design request:[/bold]")
-        prompt = typer.prompt("", default="Create a simple 50mm cube")
-
-    try:
-        result = run_design_session(
-            prompt=prompt,
-            model=model,
-            provider=provider,
-            project_dir=project_dir,
-            interactive=interactive,
-        )
-        console.print("\n[bold green]Design session completed![/bold green]")
-        if stream and interactive:
-            for chunk in result.get("stream", []):
-                if hasattr(chunk, "content"):
-                    console.print(chunk.content, end="")
-    except Exception as e:
-        display_error(f"Error: {e}")
-        raise typer.Exit(1)
-
-
-# ----------------------------------------------------------------------
-# plan  —  enhanced
+# plan  —  plan management
 # ----------------------------------------------------------------------
 
 
@@ -240,15 +195,14 @@ def plan(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     name: str = typer.Option("", "--name", "-n", help="Plan name"),
     request: str = typer.Option("", "--request", "-r", help="Requirements for plan generation"),
-    domain: str = typer.Option("cad", "--domain", "-d", help="Primary domain"),
+    domain: str = typer.Option("code", "--domain", "-d", help="Primary domain"),
 ) -> None:
-    """Manage the plan_forge.md artifact."""
-    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "."))
-    plan_path = project_dir / "plan_forge.md"
+    """Manage the slop_control.md artifact."""
+    project_dir = _project_dir(project)
+    plan_path = _plan_path(project_dir, None)
 
     if action == "create":
         from slopcontrol.core.plan.schema import DesignPlan
-
         plan_obj = DesignPlan(
             name=name or project_dir.name,
             domain=domain,
@@ -261,7 +215,6 @@ def plan(
     elif action == "generate":
         if not request:
             request = typer.prompt("Requirements for the plan")
-
         generator = PlanGenerator()
         plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
         render_plan(plan_obj, plan_path)
@@ -271,7 +224,6 @@ def plan(
         if not plan_path.exists():
             display_error(f"No plan found at {plan_path}")
             raise typer.Exit(1)
-
         plan_obj = read_plan(plan_path)
         console.print(f"\n[bold cyan]Plan: {plan_obj.name}[/bold cyan]")
         console.print(f"Domain: {plan_obj.domain}")
@@ -290,67 +242,6 @@ def plan(
 
 
 # ----------------------------------------------------------------------
-# execute  —  enhanced with domain dispatch
-# ----------------------------------------------------------------------
-
-
-@app.command()
-def execute(
-    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-    agent: str = typer.Option("slopcontrol", "--agent", "-a", help="Agent: slopcontrol, opencode, claude, cursor"),
-    section: str = typer.Option("all", "--section", "-s", help="Plan section to execute"),
-    domain: str = typer.Option("", "--domain", "-d", help="Override domain (auto-detect if empty)"),
-) -> None:
-    """Execute the current plan using the specified agent."""
-    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "."))
-    plan_path = project_dir / "plan_forge.md"
-
-    if not plan_path.exists():
-        display_error(f"No plan found at {plan_path}")
-        raise typer.Exit(1)
-
-    display_info(f"Executing plan section '{section}' with agent '{agent}'")
-
-    plan_obj = read_plan(plan_path)
-    effective_domain = domain or plan_obj.domain
-
-    if agent == "slopcontrol":
-        registry = PluginRegistry()
-        registry.auto_discover()
-        conductor = Conductor(
-            registry=registry,
-            budget=budget,
-            compete=compete,
-            compete_judge=compete_judge or "hybrid",
-        )
-        result = conductor.run_plan(plan=plan_obj, project_dir=project_dir)
-        if result["success"]:
-            display_success("PlanForge execution complete")
-        else:
-            display_error("Some steps failed")
-            raise typer.Exit(1)
-
-    elif agent in ("opencode", "cursor"):
-        from slopcontrol.integrations.opencode import OpenCodeAdapter
-        from slopcontrol.integrations.cursor import CursorAdapter
-
-        task = "\n".join(plan_obj.requirements)
-        adapter = {
-            "opencode": OpenCodeAdapter(),
-            "cursor": CursorAdapter(),
-        }[agent]
-        result = adapter.execute(task=task, context_dir=project_dir)
-        console.print(result.get("stdout", ""))
-        if not result.get("success"):
-            display_error(result.get("stderr", "External agent failed"))
-            raise typer.Exit(1)
-
-    else:
-        display_error(f"Unknown agent: {agent}")
-        raise typer.Exit(1)
-
-
-# ----------------------------------------------------------------------
 # verify
 # ----------------------------------------------------------------------
 
@@ -358,16 +249,13 @@ def execute(
 @app.command()
 def verify(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-    domain: str = typer.Option("cad", "--domain", "-d", help="Domain: cad, code"),
-    max_overhang: float = typer.Option(45.0, "--max-overhang", help="Max overhang angle (CAD only)"),
-    min_wall: float = typer.Option(0.8, "--min-wall", help="Min wall thickness mm (CAD only)"),
-    coverage_threshold: float = typer.Option(80.0, "--coverage-threshold", help="Min coverage % (code only)"),
+    domain: str = typer.Option("code", "--domain", "-d", help="Domain: cad, code"),
 ) -> None:
     """Run verification checks for the current project."""
-    project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "."))
+    project_dir = _project_dir(project)
 
-    if not (project_dir / "plan_forge.md").exists():
-        display_error(f"No plan_forge.md found in {project_dir}")
+    if not (_plan_path(project_dir, None)).exists():
+        display_error(f"No {_DEFAULT_PLAN} found in {project_dir}")
         raise typer.Exit(1)
 
     display_info(f"Running L3 verification for {domain} domain")
@@ -382,7 +270,10 @@ def verify(
     verifiers = registry.get(domain).get_verifiers()
     results: list[Any] = []
     for verifier in verifiers:
-        results.extend(verifier.validate(str(project_dir)))
+        try:
+            results.extend(verifier.validate(str(project_dir)))
+        except Exception as exc:
+            display_warning(f"Verifier error: {exc}")
 
     console.print(f"\n[bold]Verification Results ({domain}):[/bold]\n")
     all_pass = True
@@ -400,7 +291,7 @@ def verify(
 
 
 # ----------------------------------------------------------------------
-# Remaining commands (unchanged)
+# mcp
 # ----------------------------------------------------------------------
 
 
@@ -410,12 +301,11 @@ def mcp(
     port: int = typer.Option(8765, "--port", "-p", help="Port for MCP server"),
     transport: str = typer.Option("stdio", "--transport", "-t", help="Transport type"),
 ) -> None:
-    """Manage the PlanForge MCP server."""
+    """Manage the SlopControl MCP server."""
     if action == "start":
         try:
             from slopcontrol.integrations.mcp.server import create_mcp_server
             import asyncio
-
             display_info(f"Starting MCP server on port {port}...")
             server = create_mcp_server()
             asyncio.run(server.run(transport=transport))
@@ -434,12 +324,17 @@ def mcp(
         raise typer.Exit(1)
 
 
+# ----------------------------------------------------------------------
+# gateway
+# ----------------------------------------------------------------------
+
+
 @app.command()
 def gateway(
     action: str = typer.Argument("start", help="Action: start, status"),
     port: int = typer.Option(None, "--port", "-p", help="Port"),
 ) -> None:
-    """Manage the PlanForge LLM gateway server."""
+    """Manage the SlopControl LLM gateway server."""
     from slopcontrol.core.gateway import GatewayConfig, create_gateway_app
 
     cfg = GatewayConfig.from_env()
@@ -465,6 +360,11 @@ def gateway(
         raise typer.Exit(1)
 
 
+# ----------------------------------------------------------------------
+# tui
+# ----------------------------------------------------------------------
+
+
 @app.command()
 def tui(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
@@ -474,7 +374,7 @@ def tui(
     """Launch the interactive TUI."""
     from .tui import run_tui
 
-    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
+    project_dir = project or os.environ.get("SLOPCONTROL_PROJECT_DIR", "./projects")
     project_path = Path(project_dir)
     if not project_path.exists():
         display_warning(f"Project '{project_dir}' does not exist.")
@@ -493,33 +393,12 @@ def tui(
         raise typer.Exit(1)
 
 
-@app.command()
-def export(
-    design_name: str = typer.Argument(..., help="Name of the design to export"),
-    format: str = typer.Option("stl", "--format", "-f", help="Export format"),
-    output: Optional[str] = typer.Option(None, "--output", "-o", help="Output file path"),
-    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-) -> None:
-    """Export a design to a CAD file format."""
-    from slopcontrol.domains.cad.tools.file_ops import load_design_state
-    from slopcontrol.domains.cad.tools.cad import export_model
-
-    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
-    body_data = load_design_state(name=design_name, project_path=project_dir)
-    if body_data.startswith("Error"):
-        display_error(body_data)
-        raise typer.Exit(1)
-
-    if output is None:
-        out_dir = Path(project_dir) / "exports"
-        out_dir.mkdir(exist_ok=True)
-        output = str(out_dir / f"{design_name}.{format.lower()}")
-
-    result = export_model.invoke({"body_data": body_data, "format": format, "path": output})
-    display_success(f"Exported to {output}")
+# ----------------------------------------------------------------------
+# list_models / models
+# ----------------------------------------------------------------------
 
 
-@app.command()
+@app.command("list-models")
 def list_models(
     provider: Optional[str] = typer.Option(None, "--provider", help="Filter by provider"),
 ) -> None:
@@ -541,55 +420,38 @@ def models(
     list_models(provider)
 
 
-@app.command()
-def history(
-    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-    max_count: int = typer.Option(10, "--count", "-n", help="Number of commits"),
-) -> None:
-    """Show design version history."""
-    from slopcontrol.domains.cad.tools.git_ops import get_design_history
-
-    project_dir = project or os.environ.get("PLANFORGE_PROJECT_DIR", "./projects")
-    result = get_design_history(project_path=project_dir, max_count=max_count)
-    console.print(result)
-
-
-@app.command()
-def tools() -> None:
-    """List all available CAD tools."""
-    from slopcontrol.integrations.mcp.tools import CAD_MCP_TOOLS
-
-    console.print("\n[bold cyan]Available PlanForge Tools:[/bold cyan]\n")
-    for tool in CAD_MCP_TOOLS:
-        desc = tool.description.split("\n")[0][:60] if tool.description else ""
-        console.print(f"  [green]{tool.name}[/green] - {desc}")
+# ----------------------------------------------------------------------
+# help
+# ----------------------------------------------------------------------
 
 
 @app.command()
 def help_cmd() -> None:
     """Show help and usage information."""
     text = (
-        "# PlanForge - AI-Powered Plan Orchestration\n\n"
+        "# SlopControl — Agentic Development System\n\n"
+        "Controls AI-generated slop through structured plans, verification loops, "
+        "and empirical truth-seeking.\n\n"
         "## Quick Start\n"
         "1. Initialise:  slopcontrol init my-project --domain code\n"
         "2. Generate plan:  slopcontrol plan generate --request 'Build a REST API'\n"
         "3. Execute:  slopcontrol orchestrate\n\n"
-        "## Commands\n"
+        "## Core Commands\n"
         "- init <name>           Create project (cad / code / --multi)\n"
-        "- orchestrate          Run conductor on plan_forge.md\n"
+        "- orchestrate          Run conductor on slop_control.md\n"
         "- plan (create|show|generate|update) Manage plan\n"
-        "- execute              Execute plan (legacy)\n"
-        "- design               Legacy CAD session\n"
-        "- verify               Run domain verifiers\n"
-        "- tools                List tools\n"
-        "- models               List LLM models\n"
-        "- mcp                  Manage MCP server\n"
-        "- gateway              Manage LLM gateway\n\n"
+        "- verify               Run domain verifiers\n\n"
+        "## Infrastructure\n"
+        "- gateway              Manage LLM gateway (multi-provider routing)\n"
+        "- mcp                  Manage MCP server (tool exposure)\n"
+        "- list-models          List available LLM models\n\n"
         "## Environment\n"
-        "- PLANFORGE_MODEL       Default LLM model\n"
-        "- PLANFORGE_PROJECT_DIR Default project directory\n"
+        "- SLOPCONTROL_MODEL       Default LLM model\n"
+        "- SLOPCONTROL_PROJECT_DIR  Default project directory\n"
+        "- SLOPCONTROL_GATEWAY_PORT Gateway listen port\n"
+        "- SLOPCONTROL_LLM_CHAIN    Fallback model chain\n"
     )
-    console.print(Panel.fit(text, title="PlanForge Help", border_style="cyan"))
+    console.print(Panel.fit(text, title="SlopControl Help", border_style="cyan"))
 
 
 def main() -> None:

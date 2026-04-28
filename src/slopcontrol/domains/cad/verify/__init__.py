@@ -1,4 +1,4 @@
-"""PlanForge CAD Verification – L3 checks for geometry, mechanics, printability."""
+"""SlopControl CAD Verification – L3 checks for geometry, mechanics, printability."""
 
 from .geometry import GeometryVerifier, verify_geometry
 from .mechanical import MechanicalVerifier, verify_mechanical

@@ -1,4 +1,4 @@
-"""Entry point for running PlanForge as a module: python -m slopcontrol"""
+"""Entry point for running SlopControl as a module: python -m slopcontrol"""
 
 from .cli import main
 

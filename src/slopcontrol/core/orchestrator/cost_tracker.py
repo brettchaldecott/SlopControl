@@ -1,4 +1,4 @@
-"""Cost tracking for every LLM call in PlanForge.
+"""Cost tracking for every LLM call in SlopControl.
 
 Keeps a running ledger of estimated spend.  Alerts the Conductor
 when the budget is exhausted.  Persists to disk so the system can

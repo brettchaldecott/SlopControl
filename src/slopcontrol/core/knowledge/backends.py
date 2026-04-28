@@ -1,4 +1,4 @@
-"""Pluggable vector backends for the PlanForge Knowledge Base.
+"""Pluggable vector backends for the SlopControl Knowledge Base.
 
 Primary: Qdrant local mode with built-in FastEmbed (ONNX, CPU-only).
 Fallback: Brute-force cosine (zero dependencies).
@@ -309,7 +309,7 @@ class BruteForceBackend(VectorBackend):
 # ---------------------------------------------------------------------------
 
 _DEFAULT_PATH = os.environ.get(
-    "PLANFORGE_KNOWLEDGE_PATH",
+    "SLOPCONTROL_KNOWLEDGE_PATH",
     os.path.expanduser("~/.slopcontrol/knowledge")
 )
 

@@ -229,7 +229,7 @@ def display_design_history_entry(
     commit_hash: str,
     message: str,
     timestamp: str,
-    author: str = "PlanForge",
+    author: str = "SlopControl",
     changes: Optional[dict] = None,
 ) -> None:
     """Display a design history entry in a formatted panel.
