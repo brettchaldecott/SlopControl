@@ -29,15 +29,40 @@ from slopcontrol.core.utils.terminal import (
 
 load_dotenv()
 
-app = typer.Typer(
-    name="slopcontrol",
-    help="SlopControl — Agentic development through plan-controlled verification",
-    add_completion=False,
-)
-
 console = Console()
 
 _DEFAULT_PLAN = "slop_control.md"
+
+
+class KnowledgeContext:
+    """Lazy-initialized knowledge base context for CLI commands."""
+
+    _instance: "KnowledgeContext | None" = None
+
+    def __init__(self) -> None:
+        self.backend = None
+        self.indexer = None
+        self.retriever = None
+
+    def ensure_loaded(self) -> None:
+        if self.backend is None:
+            from slopcontrol.core.knowledge.backends import create_backend
+            from slopcontrol.core.knowledge.indexer import KnowledgeIndexer
+            from slopcontrol.core.knowledge.retriever import KnowledgeRetriever
+
+            self.backend = create_backend()
+            self.indexer = KnowledgeIndexer(self.backend)
+            self.retriever = KnowledgeRetriever(self.backend)
+
+    @classmethod
+    def get(cls) -> "KnowledgeContext":
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+
+# Legacy alias for backwards-compat — some tests may instantiate directly
+KnowledgeContext = KnowledgeContext
 
 
 def _project_dir(project: Optional[str]) -> Path:
@@ -166,8 +191,15 @@ def orchestrate(
     registry = PluginRegistry()
     registry.auto_discover()
     agent_list = [a.strip() for a in compete_agents.split(",")] if compete_agents else None
+
+    # Initialize knowledge base context
+    kb_ctx = KnowledgeContext.get()
+    kb_ctx.ensure_loaded()
+
     conductor = Conductor(
         registry=registry,
+        kb=kb_ctx.retriever,
+        kb_indexer=kb_ctx.indexer,
         budget=budget,
         compete=compete,
         compete_agents=agent_list,

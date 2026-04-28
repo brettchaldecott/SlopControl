@@ -9,6 +9,7 @@ from typing import Any
 
 from slopcontrol.core.domain_base.agent_factory import create_domain_agent
 from slopcontrol.core.domain_base.plugin import DomainPlugin
+from slopcontrol.core.knowledge.indexer import KnowledgeIndexer
 from slopcontrol.core.knowledge.retriever import KnowledgeRetriever
 from slopcontrol.core.plan.schema import DesignPlan
 
@@ -37,6 +38,7 @@ class Conductor:
         self,
         registry: PluginRegistry | None = None,
         kb: KnowledgeRetriever | None = None,
+        kb_indexer: KnowledgeIndexer | None = None,
         budget: float = 5.0,
         compete: bool = False,
         compete_agents: list[str] | None = None,
@@ -47,6 +49,7 @@ class Conductor:
             self.registry.auto_discover()
         self.dispatch = DispatchEngine(self.registry)
         self.kb = kb
+        self.kb_indexer = kb_indexer
         self.state: OrchestrationState | None = None
         self.cost_tracker = CostTracker(daily_budget=budget)
         self.cost_tracker.load_history()
@@ -55,7 +58,7 @@ class Conductor:
         self.compete_judge = compete_judge
         self.competition = CompetitionManager(self.registry)
         self.judge = CompetitionJudge(strategy=compete_judge)
-        self.truth_db = TruthDB(kb=kb)
+        self.truth_db = TruthDB(indexer=kb_indexer, retriever=kb)
 
     # -- Main entry point -----------------------------------------------
 

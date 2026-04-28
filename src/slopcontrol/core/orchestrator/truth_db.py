@@ -12,8 +12,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from slopcontrol.core.knowledge.indexer import KnowledgeIndexer
 from slopcontrol.core.knowledge.retriever import KnowledgeRetriever
-from slopcontrol.core.knowledge.ingest import KnowledgeIngest
 
 logger = logging.getLogger(__name__)
 
@@ -63,33 +63,49 @@ class TruthRecord:
 class TruthDB:
     """Interface to store and query empirical agent performance."""
 
-    def __init__(self, kb: KnowledgeRetriever | None = None) -> None:
-        self.kb = kb
+    def __init__(
+        self,
+        indexer: KnowledgeIndexer | None = None,
+        retriever: KnowledgeRetriever | None = None,
+    ) -> None:
+        self.indexer = indexer
+        self.retriever = retriever
 
     # -- Recording -------------------------------------------------------
 
     def record(self, rec: TruthRecord) -> None:
         """Ingest a performance record into the knowledge base."""
-        if self.kb is None:
-            logger.debug("No KB connected — skipping truth record: %s", rec.agent)
+        if self.indexer is None:
+            logger.debug("No KB indexer connected — skipping truth record: %s", rec.agent)
             return
         try:
-            ingest = KnowledgeIngest(backend=self.kb.backend)
-            ingest.index_note(
-                source=f"truth:{rec.agent}:{rec.task_type}",
+            self.indexer.index_text(
                 text=rec.to_markdown(),
-                metadata={
-                    "type": "truth_record",
-                    "task_type": rec.task_type,
-                    "agent": rec.agent,
-                    "model": rec.model,
-                    "pass_rate": rec.pass_rate,
-                    "domain": rec.domain,
-                },
+                source=f"truth:{rec.agent}:{rec.task_type}",
             )
             logger.debug("Recorded truth for %s/%s", rec.agent, rec.task_type)
         except Exception as exc:
             logger.warning("Failed to record truth record: %s", exc)
+
+    # -- Global file mirror (human-browsable) -----------------------------
+
+    def _append_to_global_file(self, rec: TruthRecord) -> Path | None:
+        """Mirror the truth record to a file under ~/.slopcontrol/knowledge/ for browsing."""
+        import os
+        from pathlib import Path
+
+        base = Path.home() / ".slopcontrol" / "knowledge" / "truth" / rec.domain
+        try:
+            base.mkdir(parents=True, exist_ok=True)
+            from datetime import datetime
+
+            month = datetime.now().strftime("%Y-%m")
+            file_path = base / f"{month}_{rec.agent}_{rec.task_type.replace(' ', '_')}.md"
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(rec.to_markdown() + "\n")
+            return file_path
+        except OSError:
+            return None
 
     # -- Querying --------------------------------------------------------
 
@@ -103,12 +119,12 @@ class TruthDB:
 
         Returns a list of parsed records, sorted by pass_rate desc.
         """
-        if self.kb is None:
+        if self.retriever is None:
             return []
 
         try:
             query_str = f"historical performance for {task_type}"
-            context = self.kb.get_context_string(query=query_str, k=k)
+            context = self.retriever.get_context_string(query=query_str, k=k)
             # Parse the context back into structured records
             return self._parse_context(context)
         except Exception as exc:
@@ -128,6 +144,7 @@ class TruthDB:
         records = self.query(task_type, k=k)
 
         from collections import defaultdict
+
         by_agent: defaultdict[str, list[dict]] = defaultdict(list)
         for rec in records:
             by_agent[rec["agent"]].append(rec)
@@ -153,7 +170,7 @@ class TruthDB:
         for line in context.splitlines():
             line = line.strip()
             if line.startswith("- **Task**:"):
-                current["task_type"] = line.split(":", 1)[1].strip()
+                current = {"task_type": line.split(":", 1)[1].strip()}
             elif line.startswith("- **Agent**:"):
                 current["agent"] = line.split(":", 1)[1].strip()
             elif line.startswith("- **Model**:"):
@@ -175,6 +192,12 @@ class TruthDB:
                     current["duration"] = 0.0
             elif line.startswith("- **Domain**:"):
                 current["domain"] = line.split(":", 1)[1].strip()
+            elif line.startswith("- **Plan**:"):
+                current["plan_name"] = line.split(":", 1)[1].strip()
+            elif line.startswith("- **Timestamp**:"):
+                current["timestamp"] = line.split(":", 1)[1].strip()
+                records.append(current)
+                current = {}
         if current:
             records.append(current)
         return records
