@@ -20,12 +20,6 @@ Most AI coding assistants treat generated code as sacred. SlopControl flips this
 - **Costs are tracked** — every LLM call is metered with daily budget caps.
 - **Truth accumulates** — historical performance per (task, agent, model) guides future selections.
 
-## What SlopControl Is NOT
-
-- ❌ Not a CAD tool. (CAD was removed in v0.3.0 — this is a pure software development system.)
-- ❌ Not a chat interface. It's an orchestration engine with structured plans.
-- ❌ Not trusting. Every output is verified before acceptance.
-
 ## Features
 
 - **Plan-First Workflow**: Natural language → `slop_control.md` → executed in verified steps
