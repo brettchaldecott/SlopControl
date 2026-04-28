@@ -3,11 +3,11 @@
 import pytest
 from pathlib import Path
 
-from planforge.core.orchestrator.competition import CandidateConfig, CandidateResult, CompetitionManager
-from planforge.core.orchestrator.judge import CompetitionJudge
-from planforge.core.orchestrator.cost_tracker import CostTracker, CostEntry
-from planforge.core.orchestrator.registry import PluginRegistry
-from planforge.core.verify.base import VerificationResult
+from slopcontrol.core.orchestrator.competition import CandidateConfig, CandidateResult, CompetitionManager
+from slopcontrol.core.orchestrator.judge import CompetitionJudge
+from slopcontrol.core.orchestrator.cost_tracker import CostTracker, CostEntry
+from slopcontrol.core.orchestrator.registry import PluginRegistry
+from slopcontrol.core.verify.base import VerificationResult
 
 
 class TestCompetitionJudge:
@@ -47,7 +47,7 @@ class TestCostTracker:
     def test_record_and_sum(self, tmp_path, monkeypatch):
         # Isolate ledger to temp dir
         monkeypatch.setattr(
-            "planforge.core.orchestrator.cost_tracker._LEDGER_FILE",
+            "slopcontrol.core.orchestrator.cost_tracker._LEDGER_FILE",
             tmp_path / "cost.jsonl",
         )
         ct = CostTracker(daily_budget=1.0)
@@ -61,7 +61,7 @@ class TestCostTracker:
 
     def test_avg_cost(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
-            "planforge.core.orchestrator.cost_tracker._LEDGER_FILE",
+            "slopcontrol.core.orchestrator.cost_tracker._LEDGER_FILE",
             tmp_path / "cost.jsonl",
         )
         ct = CostTracker(daily_budget=10.0)
@@ -72,7 +72,7 @@ class TestCostTracker:
 
     def test_load_history(self, tmp_path, monkeypatch):
         monkeypatch.setattr(
-            "planforge.core.orchestrator.cost_tracker._LEDGER_FILE",
+            "slopcontrol.core.orchestrator.cost_tracker._LEDGER_FILE",
             tmp_path / "cost.jsonl",
         )
         ct1 = CostTracker()

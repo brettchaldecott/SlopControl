@@ -2,9 +2,9 @@
 
 import pytest
 
-from planforge.core.orchestrator.registry import PluginRegistry
-from planforge.domains.cad import CADPlugin
-from planforge.domains.code import CodePlugin
+from slopcontrol.core.orchestrator.registry import PluginRegistry
+from slopcontrol.domains.cad import CADPlugin
+from slopcontrol.domains.code import CodePlugin
 
 
 class TestPluginRegistry:

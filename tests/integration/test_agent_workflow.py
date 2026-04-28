@@ -19,7 +19,7 @@ class TestAgentWorkflow:
     @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_create_box_and_export(self):
         """Test creating a simple box and exporting it."""
-        from planforge.tools.cad import create_box, export_model
+        from slopcontrol.tools.cad import create_box, export_model
 
         box_result = create_box.invoke(
             {
@@ -37,7 +37,7 @@ class TestAgentWorkflow:
     @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_create_cylinder(self):
         """Test cylinder creation."""
-        from planforge.tools.cad import create_cylinder
+        from slopcontrol.tools.cad import create_cylinder
 
         result = create_cylinder.invoke(
             {
@@ -53,7 +53,7 @@ class TestAgentWorkflow:
     @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_create_sphere(self):
         """Test sphere creation."""
-        from planforge.tools.cad import create_sphere
+        from slopcontrol.tools.cad import create_sphere
 
         result = create_sphere.invoke(
             {
@@ -68,7 +68,7 @@ class TestAgentWorkflow:
     @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_boolean_operations(self):
         """Test boolean operations between bodies."""
-        from planforge.tools.cad import create_box, create_cylinder, union_bodies, cut_body
+        from slopcontrol.tools.cad import create_box, create_cylinder, union_bodies, cut_body
 
         box_data = create_box.invoke(
             {
@@ -98,7 +98,7 @@ class TestAgentWorkflow:
 
     def test_cad_tools_list(self):
         """Test that all expected CAD tools are available."""
-        from planforge.tools.cad import CAD_TOOLS
+        from slopcontrol.tools.cad import CAD_TOOLS
 
         tool_names = [t.name for t in CAD_TOOLS]
 
@@ -124,7 +124,7 @@ class TestVisualization:
 
     def test_render_preview_structure(self):
         """Test that render_preview tool exists and has correct signature."""
-        from planforge.tools.visualization import render_preview
+        from slopcontrol.tools.visualization import render_preview
 
         assert render_preview is not None
         assert hasattr(render_preview, "invoke")
@@ -132,14 +132,14 @@ class TestVisualization:
 
     def test_display_preview_structure(self):
         """Test that display_preview tool exists."""
-        from planforge.tools.visualization import display_preview
+        from slopcontrol.tools.visualization import display_preview
 
         assert display_preview is not None
         assert hasattr(display_preview, "invoke")
 
     def test_visualization_tools_count(self):
         """Test that all visualization tools are available."""
-        from planforge.tools.visualization import VISUALIZATION_TOOLS
+        from slopcontrol.tools.visualization import VISUALIZATION_TOOLS
 
         assert len(VISUALIZATION_TOOLS) >= 4
 
@@ -149,7 +149,7 @@ class TestGitIntegration:
 
     def test_git_tools_exist(self):
         """Test that git tools are available."""
-        from planforge.tools.git_ops import (
+        from slopcontrol.tools.git_ops import (
             commit_design,
             get_design_history,
             init_git_repo,
@@ -161,7 +161,7 @@ class TestGitIntegration:
 
     def test_init_git_repo(self, tmp_path):
         """Test initializing a git repository."""
-        from planforge.tools.git_ops import init_git_repo
+        from slopcontrol.tools.git_ops import init_git_repo
 
         result = init_git_repo.invoke(
             {
@@ -177,7 +177,7 @@ class TestFileOperations:
 
     def test_file_ops_tools_exist(self):
         """Test that file operations tools exist."""
-        from planforge.tools.file_ops import (
+        from slopcontrol.tools.file_ops import (
             save_design_state,
             load_design_state,
             list_designs,
@@ -191,7 +191,7 @@ class TestFileOperations:
 
     def test_create_project(self, tmp_path):
         """Test creating a new project."""
-        from planforge.tools.file_ops import create_project
+        from slopcontrol.tools.file_ops import create_project
 
         result = create_project.invoke(
             {
@@ -206,8 +206,8 @@ class TestFileOperations:
     @pytest.mark.skipif(not LLMCAD_AVAILABLE, reason="llmcad not installed")
     def test_save_and_load_design(self, tmp_path):
         """Test saving and loading a design state."""
-        from planforge.tools.file_ops import save_design_state, load_design_state
-        from planforge.tools.cad import create_box
+        from slopcontrol.tools.file_ops import save_design_state, load_design_state
+        from slopcontrol.tools.cad import create_box
 
         designs_dir = tmp_path / "designs"
         designs_dir.mkdir()
@@ -246,7 +246,7 @@ class TestDesignHistory:
 
     def test_design_history_init(self, tmp_path):
         """Test initializing design history."""
-        from planforge.tools.design_history import DesignHistory
+        from slopcontrol.tools.design_history import DesignHistory
 
         history = DesignHistory(tmp_path)
         assert history.project_path == tmp_path
@@ -254,7 +254,7 @@ class TestDesignHistory:
 
     def test_add_iteration(self, tmp_path):
         """Test adding iterations to history."""
-        from planforge.tools.design_history import DesignHistory
+        from slopcontrol.tools.design_history import DesignHistory
 
         history = DesignHistory(tmp_path)
 
@@ -282,7 +282,7 @@ class TestDesignHistory:
 
     def test_compare_versions(self, tmp_path):
         """Test comparing two versions."""
-        from planforge.tools.design_history import DesignHistory
+        from slopcontrol.tools.design_history import DesignHistory
 
         history = DesignHistory(tmp_path)
 
@@ -312,7 +312,7 @@ class TestProviderRegistry:
 
     def test_parse_model_string(self):
         """Test model string parsing."""
-        from planforge.providers.registry import parse_model_string
+        from slopcontrol.providers.registry import parse_model_string
 
         provider, model = parse_model_string("openai:gpt-4o")
         assert provider == "openai"
@@ -324,7 +324,7 @@ class TestProviderRegistry:
 
     def test_list_available_models(self):
         """Test listing available models."""
-        from planforge.providers.registry import list_available_models
+        from slopcontrol.providers.registry import list_available_models
 
         models = list_available_models()
         assert "openai" in models
@@ -340,13 +340,13 @@ class TestCLICmds:
 
     def test_cli_imports(self):
         """Test that CLI can be imported."""
-        from planforge.cli import app
+        from slopcontrol.cli import app
 
         assert app is not None
 
     def test_mcp_tools_list(self):
         """Test that MCP tools list works."""
-        from planforge.mcp.tools import CAD_MCP_TOOLS
+        from slopcontrol.mcp.tools import CAD_MCP_TOOLS
 
         assert len(CAD_MCP_TOOLS) > 30
 

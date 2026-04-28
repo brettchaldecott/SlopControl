@@ -30,7 +30,7 @@ uv pip install -e ".[dev]"
 ## Verify Installation
 
 ```bash
-python -c "from planforge import create_cad_agent; print('PlanForge installed successfully!')"
+python -c "from slopcontrol import create_cad_agent; print('PlanForge installed successfully!')"
 ```
 
 ## Environment Setup

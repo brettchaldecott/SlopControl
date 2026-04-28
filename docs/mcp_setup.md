@@ -11,7 +11,7 @@ MCP (Model Context Protocol) is a standard protocol that allows AI models to use
 ### Basic Usage (stdio mode)
 
 ```bash
-planforge mcp start
+slopcontrol mcp start
 ```
 
 This starts the server using stdio transport, which works with most AI clients.
@@ -19,13 +19,13 @@ This starts the server using stdio transport, which works with most AI clients.
 ### SSE Mode (for web clients)
 
 ```bash
-planforge mcp start --transport sse --port 8765
+slopcontrol mcp start --transport sse --port 8765
 ```
 
 ### Check Status
 
 ```bash
-planforge mcp status
+slopcontrol mcp status
 ```
 
 ## Client Configuration
@@ -37,8 +37,8 @@ Add to your Cursor settings (`~/.cursor/mcp.json`):
 ```json
 {
   "mcpServers": {
-    "planforge": {
-      "command": "planforge",
+    "slopcontrol": {
+      "command": "slopcontrol",
       "args": ["mcp", "start"]
     }
   }
@@ -50,9 +50,9 @@ Or use npx:
 ```json
 {
   "mcpServers": {
-    "planforge": {
+    "slopcontrol": {
       "command": "npx",
-      "args": ["-y", "planforge", "mcp", "start"]
+      "args": ["-y", "slopcontrol", "mcp", "start"]
     }
   }
 }
@@ -65,8 +65,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "planforge": {
-      "command": "planforge",
+    "slopcontrol": {
+      "command": "slopcontrol",
       "args": ["mcp", "start"],
       "env": {
         "OPENAI_API_KEY": "your-api-key"
@@ -83,8 +83,8 @@ MCP support in VS Code Copilot is available in the latest versions. Add to your 
 ```json
 {
   "mcp.servers": {
-    "planforge": {
-      "command": "planforge",
+    "slopcontrol": {
+      "command": "slopcontrol",
       "args": ["mcp", "start"]
     }
   }
@@ -153,7 +153,7 @@ Done! The cube has been created and exported to cube.stl.
 
 Check that PlanForge is installed:
 ```bash
-planforge --version
+slopcontrol --version
 ```
 
 ### Client can't connect
@@ -167,15 +167,15 @@ planforge --version
 Set your API keys as environment variables:
 ```bash
 export OPENAI_API_KEY=your-key
-planforge mcp start
+slopcontrol mcp start
 ```
 
 Or include them in your client config:
 ```json
 {
   "mcpServers": {
-    "planforge": {
-      "command": "planforge",
+    "slopcontrol": {
+      "command": "slopcontrol",
       "args": ["mcp", "start"],
       "env": {
         "OPENAI_API_KEY": "your-key"

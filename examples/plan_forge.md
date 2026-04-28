@@ -5,7 +5,7 @@ version: "1.3"
 status: verified
 created: "2026-04-23T10:00:00+00:00"
 tags: [ducted-fan, brushless-motor, 3d-printed, petg-cf]
-agents: [planforge-cad]
+agents: [slopcontrol-cad]
 ---
 
 # Requirements
@@ -47,8 +47,8 @@ agents: [planforge-cad]
 - **Risk:** Resonance mode at 180 Hz, see Appendix B vibration analysis
 
 # Implementation Steps
-1. Generate motor stator geometry (planforge generate --domain cad --section motor)
-2. Generate impeller blade profile and hub (planforge generate --domain cad --section impeller)
+1. Generate motor stator geometry (slopcontrol generate --domain cad --section motor)
+2. Generate impeller blade profile and hub (slopcontrol generate --domain cad --section impeller)
 3. Generate shroud/duct housing
 4. Assembly: motor + impeller → verify clearances
 5. Export STEP for FEA thermal analysis

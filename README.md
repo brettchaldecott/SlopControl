@@ -2,8 +2,8 @@
 
 **AI-Powered Plan Orchestration for CAD, Software, and Beyond**
 
-[![PyPI version](https://img.shields.io/pypi/v/planforge)](https://pypi.org/project/planforge/)
-[![Python](https://img.shields.io/pypi/pyversions/planforge)](https://pypi.org/project/planforge/)
+[![PyPI version](https://img.shields.io/pypi/v/slopcontrol)](https://pypi.org/project/slopcontrol/)
+[![Python](https://img.shields.io/pypi/pyversions/slopcontrol)](https://pypi.org/project/slopcontrol/)
 [![License](https://img.shields.io/github/license/yourusername/PlanForge)](LICENSE)
 
 PlanForge is an AI-powered **plan-orchestration engine**. You describe what you want to build in natural language — a 3D part, a Python API, a PCB layout — and PlanForge generates a structured plan, routes each section to the right domain agent, coordinates cross-domain handoffs, and verifies the results.
@@ -35,19 +35,19 @@ This means:
 ## Installation
 
 ```bash
-pip install planforge
+pip install slopcontrol
 ```
 
 With optional CAD backends:
 
 ```bash
-pip install planforge[cad]  # llmcad, build123d, trimesh
+pip install slopcontrol[cad]  # llmcad, build123d, trimesh
 ```
 
 Or with uv:
 
 ```bash
-uv add planforge
+uv add slopcontrol
 ```
 
 ## Quick Start
@@ -56,20 +56,20 @@ uv add planforge
 
 ```bash
 # Software project
-planforge init my-api --domain code
+slopcontrol init my-api --domain code
 
 # CAD project
-planforge init my-bracket --domain cad
+slopcontrol init my-bracket --domain cad
 
 # Multi-domain workspace
-planforge init my-robot --multi
+slopcontrol init my-robot --multi
 ```
 
 ### 2. Generate a plan
 
 ```bash
 cd my-api
-planforge plan generate --request "Build a FastAPI REST API with CRUD endpoints, pytest tests, and OpenAPI docs"
+slopcontrol plan generate --request "Build a FastAPI REST API with CRUD endpoints, pytest tests, and OpenAPI docs"
 ```
 
 This creates `plan_forge.md` with structured requirements, design decisions, and implementation steps.
@@ -77,7 +77,7 @@ This creates `plan_forge.md` with structured requirements, design decisions, and
 ### 3. Execute the plan
 
 ```bash
-planforge orchestrate
+slopcontrol orchestrate
 ```
 
 The Conductor reads the plan, discovers the required domain agent(s), executes each step, and verifies the results.
@@ -85,9 +85,9 @@ The Conductor reads the plan, discovers the required domain agent(s), executes e
 ### 4. Review and iterate
 
 ```bash
-planforge plan show          # View the current plan
-planforge verify --domain code   # Run L3 verification
-planforge history            # See git commit history
+slopcontrol plan show          # View the current plan
+slopcontrol verify --domain code   # Run L3 verification
+slopcontrol history            # See git commit history
 ```
 
 ## Domains
@@ -101,9 +101,9 @@ Tools: Box, Cylinder, Sphere, Extrude, Fillet, Chamfer, Shell, Boolean ops (unio
 Verifiers: Geometry validity, assembly interference, mechanical parameters, 3D printability.
 
 ```bash
-planforge init ducted-fan --domain cad
-planforge plan generate --request "Ducted fan assembly, 90mm diameter, 5-blade impeller, PETG-CF printable"
-planforge orchestrate
+slopcontrol init ducted-fan --domain cad
+slopcontrol plan generate --request "Ducted fan assembly, 90mm diameter, 5-blade impeller, PETG-CF printable"
+slopcontrol orchestrate
 ```
 
 ### Software (`domains/code/`)
@@ -113,45 +113,45 @@ Tools: Read/write/edit code, file operations, test runner (pytest), linter (ruff
 Verifiers: pytest, mypy, coverage threshold.
 
 ```bash
-planforge init fastapi-app --domain code
-planforge plan generate --request "FastAPI app with SQLite, Pydantic models, and CRUD endpoints"
-planforge orchestrate
+slopcontrol init fastapi-app --domain code
+slopcontrol plan generate --request "FastAPI app with SQLite, Pydantic models, and CRUD endpoints"
+slopcontrol orchestrate
 ```
 
 ## CLI Commands
 
 ```bash
 # Project lifecycle
-planforge init <name> [--domain cad|code] [--multi]
-planforge orchestrate [--resume]
+slopcontrol init <name> [--domain cad|code] [--multi]
+slopcontrol orchestrate [--resume]
 
 # Plan management
-planforge plan create
-planforge plan generate --request "..."
-planforge plan show
-planforge plan update
+slopcontrol plan create
+slopcontrol plan generate --request "..."
+slopcontrol plan show
+slopcontrol plan update
 
 # Domain execution
-planforge execute [--agent planforge|opencode|claude|cursor] [--section N]
-planforge verify --domain code|cad
+slopcontrol execute [--agent slopcontrol|opencode|claude|cursor] [--section N]
+slopcontrol verify --domain code|cad
 
 # Legacy (CAD-only sessions still work)
-planforge design "Create a 50mm cube"
-planforge export bracket --format stl
+slopcontrol design "Create a 50mm cube"
+slopcontrol export bracket --format stl
 
 # Utilities
-planforge tools              # List all available tools
-planforge models             # List LLM models
-planforge history            # Git history
-planforge mcp start          # MCP server
-planforge gateway start      # LLM gateway
+slopcontrol tools              # List all available tools
+slopcontrol models             # List LLM models
+slopcontrol history            # Git history
+slopcontrol mcp start          # MCP server
+slopcontrol gateway start      # LLM gateway
 ```
 
 ## Python API
 
 ```python
-from planforge import Conductor, PluginRegistry
-from planforge.core.plan.renderer import read_plan
+from slopcontrol import Conductor, PluginRegistry
+from slopcontrol.core.plan.renderer import read_plan
 
 # Load a plan
 plan = read_plan("./plan_forge.md")
@@ -181,7 +181,7 @@ PLANFORGE_MODEL=openai:gpt-4o
 PLANFORGE_PROJECT_DIR=./projects
 
 # Knowledge base
-PLANFORGE_KNOWLEDGE_PATH=~/.planforge/knowledge
+PLANFORGE_KNOWLEDGE_PATH=~/.slopcontrol/knowledge
 
 # Gateway (optional — runs local OpenAI-compatible proxy)
 PLANFORGE_GATEWAY_PORT=8000
@@ -268,7 +268,7 @@ Adding a new domain (e.g., PCB design, firmware, hardware verification):
 
 ```python
 # domains/pcb/plugin.py
-from planforge.core.domain_base import DomainPlugin
+from slopcontrol.core.domain_base import DomainPlugin
 
 class PCBPlugin(DomainPlugin):
     name = "pcb"
@@ -281,7 +281,7 @@ class PCBPlugin(DomainPlugin):
     def get_capabilities(self): ...
 ```
 
-Place it under `planforge/domains/pcb/` and the registry auto-discovers it.
+Place it under `slopcontrol/domains/pcb/` and the registry auto-discovers it.
 
 ## License
 

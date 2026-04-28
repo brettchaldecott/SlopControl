@@ -2,10 +2,10 @@
 
 import pytest
 
-from planforge.core.orchestrator import Conductor, PluginRegistry
-from planforge.core.orchestrator.dispatch import DispatchEngine, OrchestrationError
-from planforge.core.orchestrator.protocol import StepStatus
-from planforge.core.plan.schema import DesignPlan
+from slopcontrol.core.orchestrator import Conductor, PluginRegistry
+from slopcontrol.core.orchestrator.dispatch import DispatchEngine, OrchestrationError
+from slopcontrol.core.orchestrator.protocol import StepStatus
+from slopcontrol.core.plan.schema import DesignPlan
 
 
 class TestDispatchEngine:
@@ -74,13 +74,13 @@ class TestConductor:
         plan = DesignPlan(name="checkpoint_test", domain="code")
         c.run_plan(plan, tmp_path)
 
-        from planforge.core.orchestrator.persistence import exists
+        from slopcontrol.core.orchestrator.persistence import exists
         assert exists(tmp_path)
 
     def test_state_roundtrip(self, tmp_path):
-        from planforge.core.orchestrator.persistence import save, load
-        from planforge.core.orchestrator.state import OrchestrationState
-        from planforge.core.plan.renderer import render_plan
+        from slopcontrol.core.orchestrator.persistence import save, load
+        from slopcontrol.core.orchestrator.state import OrchestrationState
+        from slopcontrol.core.plan.renderer import render_plan
 
         plan = DesignPlan(name="rt", domain="code")
         render_plan(plan, tmp_path / "plan_forge.md")

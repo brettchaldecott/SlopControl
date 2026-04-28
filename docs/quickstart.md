@@ -3,7 +3,7 @@
 ## 1. Initialize a Project
 
 ```bash
-planforge init my-first-design
+slopcontrol init my-first-design
 cd my-first-design
 ```
 
@@ -18,7 +18,7 @@ my-first-design/
 ## 2. Start a Design Session
 
 ```bash
-planforge design "Create a 50mm cube with a 10mm hole through it"
+slopcontrol design "Create a 50mm cube with a 10mm hole through it"
 ```
 
 The agent will:
@@ -47,13 +47,13 @@ When you're happy with the design, export it:
 
 ```bash
 # Export as STL (for 3D printing)
-planforge export cube --format stl
+slopcontrol export cube --format stl
 
 # Export as STEP (for CAD editing)
-planforge export cube --format step
+slopcontrol export cube --format step
 
 # Export as GLB (for web/AR)
-planforge export cube --format glb
+slopcontrol export cube --format glb
 ```
 
 ## 5. View Design History
@@ -61,7 +61,7 @@ planforge export cube --format glb
 Every change is automatically committed to git:
 
 ```bash
-planforge history
+slopcontrol history
 ```
 
 Output:
@@ -86,7 +86,7 @@ Design History:
 Run without arguments for interactive mode:
 
 ```bash
-planforge design
+slopcontrol design
 ```
 
 You'll be prompted to enter your design request, then the agent will help you iterate.

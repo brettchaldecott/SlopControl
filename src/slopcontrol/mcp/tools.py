@@ -1,0 +1,6 @@
+"""Shim for backward-compatible imports.
+
+Re-exports MCP tools from the new integrations location.
+"""
+from slopcontrol.integrations.mcp.tools import *  # noqa: F401,F403
+from slopcontrol.integrations.mcp.tools import CAD_MCP_TOOLS, get_tool_by_name, list_all_tools  # noqa: F401

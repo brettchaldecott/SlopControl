@@ -1,5 +1,5 @@
 [project]
-name = "planforge"
+name = "slopcontrol"
 version = "0.2.0"
 description = "PlanForge - AI-powered plan-driven orchestration for CAD and software development"
 readme = "README.md"
@@ -54,12 +54,12 @@ dev = [
 ]
 
 [project.scripts]
-planforge = "planforge.cli:main"
-cadAI = "planforge.cli:main"  # Backwards compatibility
+slopcontrol = "slopcontrol.cli:main"
+cadAI = "slopcontrol.cli:main"  # Backwards compatibility
 
 [project.urls]
 Homepage = "https://github.com/yourusername/PlanForge"
-Documentation = "https://planforge.readthedocs.io"
+Documentation = "https://slopcontrol.readthedocs.io"
 Repository = "https://github.com/yourusername/PlanForge"
 Issues = "https://github.com/yourusername/PlanForge/issues"
 
@@ -68,7 +68,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/planforge"]
+packages = ["src/slopcontrol"]
 
 [tool.hatch.build.targets.sdist]
 include = [
