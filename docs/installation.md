@@ -8,19 +8,19 @@
 ## Install from PyPI
 
 ```bash
-pip install cadAI
+pip install slopcontrol
 ```
 
 ## Install with uv
 
 ```bash
-uv add cadAI
+uv add slopcontrol
 ```
 
 ## Install for Development
 
 ```bash
-git clone https://github.com/yourusername/SlopControl.git
+git clone https://github.com/brettchaldecott/SlopControl.git
 cd SlopControl
 uv venv
 source .venv/bin/activate
@@ -30,7 +30,7 @@ uv pip install -e ".[dev]"
 ## Verify Installation
 
 ```bash
-python -c "from slopcontrol import create_cad_agent; print('SlopControl installed successfully!')"
+python -c "from slopcontrol import Conductor; print('SlopControl installed successfully!')"
 ```
 
 ## Environment Setup
@@ -38,31 +38,32 @@ python -c "from slopcontrol import create_cad_agent; print('SlopControl installe
 Create a `.env` file in your project directory:
 
 ```bash
-# Required for OpenAI models
-OPENAI_API_KEY=your_openai_api_key_here
+# Required for Grok models
+GROK_API_KEY=xai-your-key-here
 
-# Required for Anthropic models
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+# Optional: OpenAI models
+OPENAI_API_KEY=sk-your-key-here
 
 # Optional: Ollama for local models
 OLLAMA_BASE_URL=http://localhost:11434
 
 # Optional: Default settings
-SLOPCONTROL_MODEL=openai:gpt-4o
+SLOPCONTROL_MODEL=grok:grok-3-beta
 SLOPCONTROL_PROJECT_DIR=./projects
 ```
 
 ## Dependencies
 
-SlopControl requires the following packages:
+### Core
+- **deepagents** — Agent framework with planning and filesystem tools
+- **langchain-core** — LLM integration
+- **typer** — CLI framework
+- **rich** — Terminal output formatting
+- **qdrant-client** — Vector database (falls back to brute-force in-memory)
+- **fastapi + uvicorn** — LLM gateway server
 
-- **deepagents** - Agent framework with planning and filesystem tools
-- **llmcad** - LLM-friendly CAD library built on OpenCASCADE
-- **langchain-core** - LLM integration
-- **langchain-openai** - OpenAI model support
-- **langchain-anthropic** - Anthropic model support
-- **langchain-ollama** - Ollama model support
-- **typer** - CLI framework
-- **pillow** - Image processing for previews
-- **gitpython** - Git integration for version control
-- **rich** - Terminal output formatting
+### Optional
+- **langchain-openai** — OpenAI model support
+- **langchain-ollama** — Ollama local model support
+- **pytest, mypy, ruff** — Code verification (used by the `code` domain)
+- **gitpython** — Git integration

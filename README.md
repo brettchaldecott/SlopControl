@@ -6,38 +6,36 @@
 [![Python](https://img.shields.io/pypi/pyversions/slopcontrol)](https://pypi.org/project/slopcontrol/)
 [![License](https://img.shields.io/github/license/brettchaldecott/SlopControl)](LICENSE)
 
-SlopControl is an **agentic development system**. It treats AI-generated code, models, and designs as disposable slop — controlled and refined through structured plans, empirical verification, and competing agent tournaments.
+SlopControl is an **agentic development system**. It treats AI-generated code as disposable slop — controlled and refined through structured plans, empirical verification, and competing agent tournaments.
 
 **The plan (`slop_control.md`) is the source of truth. Everything else is ephemeral.**
 
 ## Philosophy
 
-Most AI coding assistants treat generated code as sacred. SlopControl flips this: the **plan** is durable; the outputs are slop to be iterated, verified, and discarded until they pass.
+Most AI coding assistants treat generated code as sacred. SlopControl flips this:
 
-- **Plans are portable** — move them between models, domains, and teams.
-- **Domains are pluggable** — CAD, software, PCB, firmware — each via `DomainPlugin`.
-- **Verification is first-class** — every section has checks (pytest, mypy, geometry, printability).
-- **Agents compete empirically** — run multiple candidates per step, let verifiers pick the winner.
-- **Cost is tracked** — daily budgets prevent runaway API spend.
+- **The plan is durable** — it describes requirements, decisions, and verification criteria.
+- **The code is slop** — generated, tested, verified, and regenerated until it passes.
+- **Agents compete** — multiple candidates per step, verifier picks the winner.
+- **Costs are tracked** — every LLM call is metered with daily budget caps.
 - **Truth accumulates** — historical performance per (task, agent, model) guides future selections.
 
 ## What SlopControl Is NOT
 
-- ❌ Not a CAD tool. CAD is one domain plugin among many.
+- ❌ Not a CAD tool. (CAD was removed in v0.3.0 — this is a pure software development system.)
 - ❌ Not a chat interface. It's an orchestration engine with structured plans.
 - ❌ Not trusting. Every output is verified before acceptance.
 
 ## Features
 
 - **Plan-First Workflow**: Natural language → `slop_control.md` → executed in verified steps
-- **Central Conductor**: Reads plans, dispatches to domain agents, coordinates handoffs
+- **Central Conductor**: Reads plans, dispatches to agents, coordinates handoffs
 - **Parallel Competition**: Multiple agent candidates per step — verifier picks winner (`--compete`)
 - **Cost Tracking**: Daily budget caps with historical spend logging
 - **Truth Database**: Empirical performance records per task/agent/model
 - **Knowledge Base**: RAG with Qdrant + RAPTOR hierarchical summaries
 - **LLM Gateway**: OpenAI-compatible proxy with automatic fallback (Grok, OpenAI, Ollama, local)
 - **Local Model Discovery**: Auto-probes LM Studio, vLLM, llama.cpp on startup
-- **Cross-Domain Handoffs**: CAD geometry specs → firmware parameters, tracked explicitly
 - **MCP Server**: Expose tools to Claude Desktop, Cursor, OpenCode
 
 ## Installation
@@ -46,19 +44,13 @@ Most AI coding assistants treat generated code as sacred. SlopControl flips this
 pip install slopcontrol
 ```
 
-With CAD support (optional):
-
-```bash
-pip install slopcontrol[cad]  # llmcad, build123d, trimesh
-```
-
 Or with uv:
 
 ```bash
 uv add slopcontrol
 ```
 
-## Quick Start — Software
+## Quick Start
 
 ```bash
 # 1. Create project
@@ -75,23 +67,14 @@ slopcontrol orchestrate --compete --budget 5.00
 slopcontrol verify --domain code
 ```
 
-## Quick Start — CAD
-
-```bash
-slopcontrol init bracket --domain cad
-slopcontrol plan generate --request "Ducted fan, 90mm, 5-blade, PETG-CF printable"
-slopcontrol orchestrate
-slopcontrol verify --domain cad
-```
-
 ## CLI Commands
 
 ```bash
 # Core workflow
-slopcontrol init <name> [--domain code|cad] [--multi]
+slopcontrol init <name> [--domain code] [--multi]
 slopcontrol plan generate --request "..."
 slopcontrol orchestrate [--compete] [--budget 5.0] [--compete-agents planforge,opencode]
-slopcontrol verify --domain code|cad
+slopcontrol verify --domain code
 
 # Infrastructure
 slopcontrol gateway start    # LLM proxy with fallback
@@ -135,14 +118,21 @@ SLOPCONTROL_DAILY_BUDGET=5.0
 SLOPCONTROL_PREFER_LOCAL=true
 ```
 
-## Domains
+## Domain: Software (`domains/code/`)
 
-| Domain | Tools | Verifiers |
-|---|---|---|
-| **code** | read/write/edit, pytest, ruff, mypy, pip/poetry/uv, git | pytest, mypy, coverage |
-| **cad** | box, cylinder, sphere, boolean ops, STEP/STL/GLB export, preview | geometry, assembly, mechanical, printability |
+| Category | Tools |
+|---|---|
+| **Code** | read_code, write_code, edit_code, delete_file |
+| **File ops** | list_files, create_module, move_file, find_in_files |
+| **Testing** | run_tests (pytest), run_linter (ruff), run_type_check (mypy) |
+| **Dependencies** | add_dependency, remove_dependency, list_dependencies |
+| **Git** | init_git_repo, commit, get_history, create_branch, merge_branch |
 
-Add new domains by implementing `DomainPlugin` in `domains/<name>/plugin.py`.
+| Verifiers | What they check |
+|---|---|
+| pytest | All tests pass |
+| mypy | Type errors |
+| coverage | Line coverage threshold |
 
 ## Architecture
 
@@ -154,26 +144,26 @@ Add new domains by implementing `DomainPlugin` in `domains/<name>/plugin.py`.
         ┌───────────────▼──────────────┐
         │    Central Conductor         │
         │  plan → budget → compete →   │
-        │   verify → truth → persist     │
+        │   verify → truth → persist   │
         └───────┬──────────┬───────────┘
                 │          │
     ┌───────────▼──────┐  ┌▼──────────────┐
-    │  Domain Agents   │  │  Truth DB     │
+    │  Code Agent      │  │  Truth DB     │
     │  ┌──┐ ┌──┐ ┌──┐ │  │  (KB records) │
-    │  │SW│ │CAD│ │PCB│ │  └──────────────┘
+    │  │RW│ │TS│ │DE│ │  └───────────────┘
     │  └──┘ └──┘ └──┘ │
     │    Competition   │        ┌──────────┐
-    │    (parallel)   │        │ Verifiers│
+    │    (parallel)    │        │ Verifiers│
     └──────────────────┘        │pytest    │
-         │         │           │geometry  │
+         │         │            │mypy      │
     ┌────▼────┐  ┌▼──────┐    │coverage  │
     │ Cost    │  │KB     │    └──────────┘
     │ Tracker │  │RAG    │
     └─────────┘  └───────┘
          │
 ┌────────▼────────────────────────────────────────┐
-│          LLM Gateway (optional)                  │
-│  OpenAI-compatible /v1/chat/completions         │
+│          LLM Gateway (optional)                    │
+│  OpenAI-compatible /v1/chat/completions       │
 │  Fallback: grok → openai → ollama → local       │
 └──────────────────────────────────────────────────┘
 ```
@@ -196,26 +186,24 @@ conductor = Conductor(
 
 result = conductor.run_plan(plan, project_dir="./my-project")
 print(f"Success: {result['success']}")
-print(f"Artifacts: {len(result['artifacts'])}")
 print(f"Cost: ${sum(r.cost_usd for r in result.get('candidates', []))}")
 ```
 
 ## Extending — Add a Domain
 
 ```python
-# domains/pcb/plugin.py
+# domains/web/plugin.py
 from slopcontrol.core.domain_base import DomainPlugin
 
-class PCBPlugin(DomainPlugin):
-    name = "pcb"
-    display_name = "PCB Design"
-
+class WebPlugin(DomainPlugin):
+    name = "web"
+    display_name = "Web Development"
     def get_tools(self): ...
     def get_verifiers(self): ...
     def scaffold_project(self, path): ...
 ```
 
-Place under `slopcontrol/domains/pcb/` — auto-discovered on `orchestrate`.
+Place under `slopcontrol/domains/web/` — auto-discovered on `orchestrate`.
 
 ## Dependencies
 
@@ -224,14 +212,11 @@ Place under `slopcontrol/domains/pcb/` — auto-discovered on `orchestrate`.
 - **langchain**: LLM integration
 - **typer**: CLI
 - **qdrant-client**: Vector DB (falls back to brute-force)
-- **fastapi + uvicorn**: Gateway
+- **fastapi + uvicorn**: LLM gateway
 - **rich + textual**: Terminal UI
 
-### Optional CAD
-- **llmcad**, **build123d**, **trimesh**
-
-### Optional Code
-- **pytest**, **mypy**, **ruff**
+### Optional
+- **pytest**, **mypy**, **ruff**: Code verification
 
 ## License
 

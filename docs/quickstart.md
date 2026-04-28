@@ -3,118 +3,94 @@
 ## 1. Initialize a Project
 
 ```bash
-slopcontrol init my-first-design
-cd my-first-design
+slopcontrol init my-api --domain code
+cd my-api
 ```
 
 This creates a new project with the following structure:
 ```
-my-first-design/
-├── designs/      # Saved design states
-├── exports/      # Exported CAD files
-└── previews/     # Preview images
+my-api/
+├── slop_control.md   # The plan artifact
+├── src/              # Source code
+└── tests/            # Test suite
 ```
 
-## 2. Start a Design Session
+## 2. Generate a Plan
+
+Describe what you want to build:
 
 ```bash
-slopcontrol design "Create a 50mm cube with a 10mm hole through it"
+slopcontrol plan generate --request "Build a FastAPI REST API with CRUD, SQLite, Pydantic, and pytest"
 ```
 
 The agent will:
 1. Understand your request
-2. Create the 3D model using llmcad
-3. Show you a preview
-4. Save the design to the project
+2. Write a structured plan to `slop_control.md`
+3. Include requirements, design decisions, and implementation steps
 
-## 3. Iterate on Your Design
+## 3. Execute the Plan
 
-When you want to make changes, just ask:
-
-```
-User: "Make it taller, 80mm instead of 50mm"
-Agent: [Updates the model]
-Agent: [Shows you the new preview]
-
-User: "Add fillet to the edges"
-Agent: [Adds fillet]
-Agent: [Shows you the result]
-```
-
-## 4. Export Your Design
-
-When you're happy with the design, export it:
+Run the Central Conductor to execute each step:
 
 ```bash
-# Export as STL (for 3D printing)
-slopcontrol export cube --format stl
-
-# Export as STEP (for CAD editing)
-slopcontrol export cube --format step
-
-# Export as GLB (for web/AR)
-slopcontrol export cube --format glb
+slopcontrol orchestrate
 ```
 
-## 5. View Design History
+The conductor:
+1. Reads the plan
+2. Dispatches each step to the appropriate domain agent
+3. Runs verifiers after each step
+4. Checkpoints state so you can resume
 
-Every change is automatically committed to git:
+### With Competition Mode
+
+Run multiple agents in parallel per step and let the verifier pick the winner:
 
 ```bash
-slopcontrol history
+slopcontrol orchestrate --compete --compete-agents grok,openai --budget 5.00
 ```
 
-Output:
-```
-Design History:
-============================================================
-1. a3f8b2c | 2024-01-15 14:30
-   Add fillet to edges
-   by SlopControl Agent
+## 4. Iterate on Your Design
 
-2. b4c9d3e | 2024-01-15 14:28
-   Increase height to 80mm
-   by SlopControl Agent
-
-3. c5d0e4f | 2024-01-15 14:25
-   Initial cube with hole
-   by SlopControl Agent
-```
-
-## Interactive Mode
-
-Run without arguments for interactive mode:
+When you want to make changes, just update the plan and re-run:
 
 ```bash
-slopcontrol design
+# Edit slop_control.md, then:
+slopcontrol orchestrate --resume
 ```
 
-You'll be prompted to enter your design request, then the agent will help you iterate.
+Or regenerate from a new request:
 
-## Design Patterns
-
-### Mounting Plate with Holes
-
-```
-Create a 100mm x 60mm x 5mm mounting plate with 4 corner holes
+```bash
+slopcontrol plan generate --request "Add OAuth2 authentication to the API"
 ```
 
-### Cylindrical Boss
+## 5. Verify
 
-```
-Create a 80mm x 80mm x 10mm base plate with a 20mm diameter
-cylindrical boss in the center, raised 15mm high, with a
-10mm through-hole in the middle.
+Run domain verifiers to ensure everything passes:
+
+```bash
+slopcontrol verify --domain code
 ```
 
-### Hollow Box
+## Common Patterns
 
+### REST API
 ```
-Create a hollow box enclosure 50mm x 50mm x 50mm with 2mm
-wall thickness.
+Build a REST API with FastAPI, SQLite, and JWT authentication
+```
+
+### CLI Tool
+```
+Build a CLI tool with Typer that manages task lists
+```
+
+### Library
+```
+Build a Python library with a clean public API, comprehensive tests, and type hints
 ```
 
 ## Next Steps
 
-- [MCP Setup](mcp_setup.md) - Use SlopControl tools from AI coding assistants
-- [Design Patterns](design_patterns.md) - Common CAD design patterns
+- [MCP Setup](mcp_setup.md) — Use SlopControl tools from AI coding assistants like Cursor
+- [Installation](installation.md) — Detailed installation and configuration

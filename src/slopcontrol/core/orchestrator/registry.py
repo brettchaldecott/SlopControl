@@ -13,7 +13,6 @@ from slopcontrol.core.domain_base.plugin import DomainPlugin
 logger = logging.getLogger(__name__)
 
 _DEFAULT_PACKAGES = [
-    "slopcontrol.domains.cad",
     "slopcontrol.domains.code",
 ]
 
@@ -38,7 +37,7 @@ class PluginRegistry:
         logger.info("Registered domain plugin: %s", plugin.name)
 
     def get(self, name: str) -> DomainPlugin:
-        """Retrieve a plugin by its short name (e.g. ``"cad"``)."""
+        """Retrieve a plugin by its short name (e.g. ``"code"``)."""
         if name not in self._plugins:
             raise KeyError(f"No plugin registered for domain '{name}'")
         return self._plugins[name]

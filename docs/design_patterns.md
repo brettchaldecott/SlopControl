@@ -1,179 +1,208 @@
-# Design Patterns
+# Code Design Patterns
 
-This guide covers common CAD design patterns and how to implement them with SlopControl.
+This guide covers common software design patterns and how to implement them with SlopControl.
 
-## 1. Mounting Plate with Holes
+## 1. REST API with CRUD
 
-A flat plate with corner mounting holes for bolts.
+A standard REST API with Create, Read, Update, Delete operations.
 
 ### Description
-- Base plate with specified dimensions
-- Four holes positioned at corners
-- Holes inset from edges for clearance
-- Optional fillet on top edges
+- Resource-based routing
+- Pydantic models for request/response validation
+- SQLite database via SQLAlchemy or similar
+- Comprehensive pytest coverage
 
-### Design Request
+### Plan Request
 ```
-Create a 100mm x 60mm x 5mm mounting plate with 4 corner holes.
-The holes should be 5mm in diameter and inset 8mm from each corner.
-Add a 2mm fillet to the top edges.
+Build a FastAPI REST API for managing tasks with SQLite, Pydantic models,
+and full CRUD endpoints. Include pytest tests with 80% coverage.
 ```
 
 ### Implementation Pattern
 ```python
-# 1. Create base plate
-plate = Box(100, 60, 5)
+# 1. Define Pydantic models
+class Task(BaseModel):
+    id: int
+    title: str
+    done: bool = False
 
-# 2. Add corner holes using face corners
-# 3. Fillet top edges
+# 2. Create database layer
+# 3. Implement CRUD endpoints
+# 4. Write tests
 ```
 
-## 2. Cylindrical Boss
+## 2. CLI Tool
 
-A raised cylinder on a flat surface with a through-hole.
+A command-line tool built with Typer.
 
 ### Description
-- Flat base plate
-- Cylindrical boss raised from surface
-- Central hole through the boss
-- Often used for bearing seats or screw mounts
+- Subcommands for different operations
+- Rich terminal output
+- Configuration file support
+- Type hints throughout
 
-### Design Request
+### Plan Request
 ```
-Create an 80mm x 80mm x 10mm base plate with a 25mm diameter
-cylindrical boss in the center, raised 20mm high. Add a 12mm
-through-hole in the center of the boss.
+Build a CLI tool with Typer that manages a task list. Support adding,
+listing, completing, and deleting tasks. Store in a JSON file.
 ```
 
-## 3. Hollow Box / Enclosure
+## 3. Python Library
 
-A thin-walled hollow container.
+A reusable library with a clean public API.
 
 ### Description
-- Outer box with specified wall thickness
-- Single opening (typically top face removed)
-- Interior hollow
-- Used for enclosures, cases, containers
+- `__init__.py` exports the public API
+- Internal modules prefixed with `_`
+- Comprehensive docstrings
+- Full type hints
+- pytest + mypy + ruff verification
 
-### Design Request
+### Plan Request
 ```
-Create a hollow box 60mm x 40mm x 30mm with 2mm wall thickness.
-```
-
-### Implementation Pattern
-```python
-# 1. Create solid outer box
-outer = Box(width, height, depth)
-
-# 2. Shell out using top face
-# Note: llmcad shell operation removes material
-result = shell(outer.top, thickness=wall_thickness)
+Build a Python library for parsing and validating email addresses.
+Include a clean public API, comprehensive tests, and type hints.
 ```
 
-## 4. L-Bracket
+## 4. Background Worker
 
-An L-shaped bracket for corner mounting.
+A worker that processes tasks from a queue.
 
-### Design Request
+### Description
+- Async/await pattern
+- Graceful shutdown handling
+- Retry logic with exponential backoff
+- Structured logging
+
+### Plan Request
 ```
-Create an L-bracket with a 60mm x 40mm vertical face and a
-100mm x 40mm horizontal base. Both faces should be 5mm thick.
-Add 4mm mounting holes in the base and 3mm mounting holes
-in the vertical face.
-```
-
-## 5. Flanged Part
-
-A cylindrical part with a flat mounting flange.
-
-### Design Request
-```
-Create a flanged part with a 20mm diameter shaft 40mm long
-and a 40mm diameter flange 5mm thick at the base.
+Build an async background worker that processes jobs from a SQLite queue.
+Include retry logic, logging, and graceful shutdown.
 ```
 
-## 6. Stepped Shaft
+## 5. Plugin Architecture
 
-A shaft with multiple diameter sections.
+A system that loads plugins dynamically.
 
-### Design Request
+### Description
+- Entry points or filesystem discovery
+- Plugin registration API
+- Error isolation (one bad plugin doesn't crash the system)
+- Examples included
+
+### Plan Request
 ```
-Create a stepped shaft with three sections:
-- Bottom: 30mm diameter, 20mm long
-- Middle: 20mm diameter, 30mm long
-- Top: 15mm diameter, 20mm long
-```
-
-## 7. Interlocking Parts
-
-Two parts designed to fit together.
-
-### Design Request
-```
-Create a male and female interlocking bracket:
-- Male part: 40mm cube with a 10mm x 10mm tongue
-- Female part: 45mm cube with a 10mm x 10mm slot
+Build a plugin-based tool that discovers and loads Python modules
+from a plugins/ directory. Include a sample plugin and tests.
 ```
 
-## 8. Ribbed Panel
+## 6. Event-Driven System
 
-A flat panel with reinforcing ribs on the back.
+A system that reacts to events.
 
-### Design Request
+### Description
+- Event bus / pub-sub pattern
+- Typed events
+- Async handlers
+- Testable with mock events
+
+### Plan Request
 ```
-Create a 100mm x 80mm x 5mm panel with 4 rectangular ribs
-on the back side, running vertically. The ribs should be
-5mm wide and 8mm tall.
-```
-
-## 9. Chamfered Box
-
-A box with chamfered (beveled) edges for aesthetics or safety.
-
-### Design Request
-```
-Create a 40mm cube with chamfered edges. All edges should
-have a 2mm chamfer.
+Build an event-driven system with an in-memory event bus.
+Support typed events, async handlers, and subscription management.
 ```
 
-## 10. Custom Profile Extrusion
+## 7. Data Pipeline
 
-A profile created by extruding a custom 2D sketch.
+A pipeline that transforms data through multiple stages.
 
-### Design Request
+### Description
+- Stage-based architecture
+- Input/output contracts per stage
+- Error handling and fallback stages
+- Progress reporting
+
+### Plan Request
 ```
-Create a T-slot aluminum style extrusion, 20mm wide and
-with the T-slot being 6mm wide and 10mm deep.
+Build a data pipeline that reads CSV, validates rows, transforms data,
+and writes to SQLite. Include error handling and progress reporting.
 ```
 
-## Design Best Practices
+## 8. Authentication Layer
 
-### 1. Start Simple
-Begin with basic shapes that capture the overall form. Add features incrementally.
+Add authentication to an existing API.
 
-### 2. Use Named Faces
-llmcad provides named faces (`top`, `bottom`, `front`, `back`, `left`, `right`). Use these for positioning instead of coordinates.
+### Description
+- JWT or OAuth2
+- Middleware for protected routes
+- Token refresh
+- Test users for testing
 
-### 3. Think in Operations
-- **Union (+)**: Combine shapes
-- **Cut (-)**: Remove material
-- **Intersect (&)**: Keep overlap
+### Plan Request
+```
+Add JWT authentication to the existing FastAPI app. Include login,
+register, and protected endpoints. Write tests.
+```
 
-### 4. Verify Often
-Request previews after major operations to catch issues early.
+## 9. Caching Layer
 
-### 5. Use Appropriate Tolerances
-- For 3D printing: 0.1-0.2mm clearance
-- For CNC machining: 0.05-0.1mm clearance
-- For assembly: Consider worst-case tolerances
+Add caching to improve performance.
 
-## Common Dimensions
+### Description
+- In-memory or Redis caching
+- Cache invalidation strategy
+- Cache-aside or write-through patterns
+- Metrics on cache hit/miss
 
-| Application | Typical Values |
-|-------------|----------------|
-| M3 screw clearance | 3.2-3.4mm hole |
-| M4 screw clearance | 4.2-4.4mm hole |
-| M5 screw clearance | 5.2-5.4mm hole |
-| Press fit bearings | Hole = OD - 0.05mm |
-| Snap fits | Deflection 1-2mm |
-| Fillet radius | 0.5-2x wall thickness |
+### Plan Request
+```
+Add a caching layer to the existing API using an in-memory LRU cache.
+Include cache invalidation and hit/miss metrics.
+```
+
+## 10. Webhook Receiver
+
+A service that receives and processes webhooks.
+
+### Description
+- Signature verification
+- Idempotency key handling
+- Async processing
+- Retry queue for failures
+
+### Plan Request
+```
+Build a webhook receiver with signature verification and idempotency.
+Queue failed webhooks for retry. Include tests.
+```
+
+## Development Best Practices
+
+### 1. Type Hints
+Use `typing` everywhere. Run mypy to catch errors.
+
+### 2. Testing
+- Unit tests for individual functions
+- Integration tests for endpoints
+- Use pytest fixtures for setup
+
+### 3. Error Handling
+- Custom exceptions for domain errors
+- Graceful degradation
+- Structured logging
+
+### 4. Verification
+Run verifiers often:
+```bash
+slopcontrol verify --domain code
+```
+
+## Common Tooling
+
+| Tool | Purpose |
+|------|---------|
+| pytest | Unit and integration tests |
+| mypy | Static type checking |
+| ruff | Linting and formatting |
+| pytest-cov | Coverage reporting |
+| pre-commit | Pre-commit hooks |

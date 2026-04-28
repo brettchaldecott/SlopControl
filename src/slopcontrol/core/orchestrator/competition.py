@@ -238,7 +238,7 @@ class CompetitionManager:
         plan: Any,
         workspace: Path,
     ) -> tuple[list[Path], list[VerificationResult]]:
-        """Run an internal domain agent (slopcontrol cad/code/...)."""
+        """Run an internal domain agent."""
         plugin = self.registry.get(cfg.agent_name)
         agent = create_domain_agent(
             plugin=plugin,

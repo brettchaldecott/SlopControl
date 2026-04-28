@@ -1,15 +1,12 @@
-"""SlopControl - AI-powered plan orchestration for CAD and software development."""
+"""SlopControl — agentic development through plan-controlled verification."""
 
-from .agent import create_agent, create_cad_agent, run_design_session
+from .agent import create_agent, run_design_session
 from slopcontrol.core.orchestrator import Conductor, PluginRegistry
-from slopcontrol.domains.cad.tools.cad import CAD_TOOLS
 
 __version__ = "0.2.0"
 __all__ = [
     "create_agent",
-    "create_cad_agent",
     "run_design_session",
     "Conductor",
     "PluginRegistry",
-    "CAD_TOOLS",
 ]

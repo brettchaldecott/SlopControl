@@ -1,6 +1,6 @@
 """Abstract base for domain plugins.
 
-Every domain (cad, code, pcb, firmware, etc.) implements a ``DomainPlugin``.
+Every domain (code, pcb, firmware, etc.) implements a ``DomainPlugin``.
 The plugin provides the Conductor with all domain-specific assets:
 tools, verifiers, prompts, and project scaffolding.
 """
@@ -15,15 +15,15 @@ from typing import Any
 class DomainPlugin(ABC):
     """Contract for a SlopControl domain plugin.
 
-    A domain is a vertical expertise area (CAD, software, PCB design,
-    firmware, etc.).  The Conductor loads plugins via
+    A domain is a vertical expertise area (software, web, firmware, etc.).
+    The Conductor loads plugins via
     :class:`~slopcontrol.core.orchestrator.registry.PluginRegistry` and
     uses them to dispatch plan sections to the right agents.
     """
 
     # Identifiers -------------------------------------------------------
-    name: str = "abstract"          # e.g. "cad", "code"
-    display_name: str = "Abstract"  # e.g. "CAD Design"
+    name: str = "abstract"          # e.g. "code", "web"
+    display_name: str = "Abstract"  # e.g. "Software Development"
 
     # -- Tools --------------------------------------------------------
     @abstractmethod
@@ -65,17 +65,13 @@ class DomainPlugin(ABC):
     def scaffold_project(self, project_path: Path) -> None:
         """Create domain-specific directories under *project_path*.
 
-        Examples: ``designs/``, ``exports/``, ``previews/`` for CAD;
-        ``src/``, ``tests/``, ``docs/`` for software.
+        Examples: ``src/``, ``tests/``, ``docs/`` for software.
         """
         ...
 
     # -- Capabilities metadata -----------------------------------------
     def get_capabilities(self) -> list[str]:
         """Return capability tags for planning and routing.
-
-        Examples: ``["3d-modeling", "mesh-export"]`` for CAD,
-        ``["python", "test-gen", "api-design"]`` for software.
         """
         return []
 

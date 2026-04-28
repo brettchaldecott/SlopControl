@@ -9,23 +9,23 @@ from slopcontrol.core.plan.schema import DesignPlan
 
 
 class TestDispatchEngine:
-    def test_cad_explicit_domain(self):
+    def test_code_explicit_domain(self):
         reg = PluginRegistry()
         reg.auto_discover()
         engine = DispatchEngine(reg)
 
-        step = {"domain": "cad", "description": "Create a mounting plate"}
+        step = {"domain": "code", "description": "Create a REST API handler"}
         name, typ = engine.select_agent(step, DesignPlan(name="test", domain="code"))
-        assert name == "cad"
+        assert name == "code"
 
     def test_fallback_to_plan_domain(self):
         reg = PluginRegistry()
         reg.auto_discover()
         engine = DispatchEngine(reg)
 
-        step = {"description": "Create a mounting plate"}
-        name, typ = engine.select_agent(step, DesignPlan(name="test", domain="cad"))
-        assert name == "cad"
+        step = {"description": "Create a REST API handler"}
+        name, typ = engine.select_agent(step, DesignPlan(name="test", domain="code"))
+        assert name == "code"
 
     def test_unknown_domain_raises(self):
         reg = PluginRegistry()
@@ -41,7 +41,7 @@ class TestConductor:
         reg = PluginRegistry()
         reg.auto_discover()
         c = Conductor(registry=reg)
-        assert c.registry.has("cad")
+        assert c.registry.has("code")
         assert c.registry.has("code")
 
     def test_run_plan_empty(self, tmp_path):

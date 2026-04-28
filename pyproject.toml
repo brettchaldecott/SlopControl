@@ -1,14 +1,14 @@
 [project]
 name = "slopcontrol"
-version = "0.2.0"
-description = "PlanForge - AI-powered plan-driven orchestration for CAD and software development"
+version = "0.3.0"
+description = "SlopControl — agentic development through plan-controlled verification"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "Brett Chaldecott"}
 ]
-keywords = ["plan", "orchestrator", "cad", "3d", "modeling", "ai", "agent", "llm", "langchain", "software", "development"]
+keywords = ["plan", "orchestrator", "ai", "agent", "llm", "langchain", "software", "development", "verification"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -26,13 +26,11 @@ dependencies = [
     "langchain-anthropic>=0.2.0",
     "langchain-ollama>=0.1.0",
     "typer[all]>=0.12.0",
-    "pillow>=10.0.0",
     "gitpython>=3.1.40",
     "structlog>=24.0.0",
     "pydantic>=2.0",
     "python-dotenv>=1.0.0",
     "rich>=13.0.0",
-    "textual>=0.50.0",
     "fastapi>=0.110.0",
     "uvicorn>=0.30.0",
     "qdrant-client[fastembed]>=1.17.0",
@@ -40,10 +38,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-cad = [
-    "build123d>=0.1.0",
-    "trimesh>=4.0.0",
-]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
@@ -55,13 +49,12 @@ dev = [
 
 [project.scripts]
 slopcontrol = "slopcontrol.cli:main"
-cadAI = "slopcontrol.cli:main"  # Backwards compatibility
 
 [project.urls]
-Homepage = "https://github.com/yourusername/PlanForge"
-Documentation = "https://slopcontrol.readthedocs.io"
-Repository = "https://github.com/yourusername/PlanForge"
-Issues = "https://github.com/yourusername/PlanForge/issues"
+Homepage = "https://github.com/brettchaldecott/SlopControl"
+Documentation = "https://github.com/brettchaldecott/SlopControl#readme"
+Repository = "https://github.com/brettchaldecott/SlopControl.git"
+Issues = "https://github.com/brettchaldecott/SlopControl/issues"
 
 [build-system]
 requires = ["hatchling"]

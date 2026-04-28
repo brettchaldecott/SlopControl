@@ -1,7 +1,7 @@
 """SlopControl CLI — command-line interface for the agentic orchestrator.
 
 Controls AI-generated slop through structured plans, parallel verification,
-and empirical truth-seeking.  Not a CAD tool — an agentic development system.
+and empirical truth-seeking.
 """
 
 from __future__ import annotations
@@ -56,7 +56,7 @@ def _plan_path(project_dir: Path, plan_file: Optional[str]) -> Path:
 @app.command()
 def init(
     project_name: str = typer.Argument(..., help="Name of the project"),
-    domain: str = typer.Option("code", "--domain", "-d", help="Primary domain (cad, code)"),
+    domain: str = typer.Option("code", "--domain", "-d", help="Primary domain (code)"),
     multi: bool = typer.Option(False, "--multi", help="Multi-domain workspace"),
     project_dir: Optional[str] = typer.Option(None, "--dir", help="Parent directory"),
     git: bool = typer.Option(True, "--git/--no-git", help="Initialise git"),
@@ -74,9 +74,10 @@ def init(
     registry = PluginRegistry()
     registry.auto_discover()
 
-    domains = ["cad", "code"] if multi else [domain]
+    domains = [domain] if multi else [domain]
+    known_domains = registry.list_domains()
     for d in domains:
-        if registry.has(d):
+        if d in known_domains:
             registry.get(d).scaffold_project(project_path)
         else:
             display_warning(f"Unknown domain '{d}' — skipping scaffold")
@@ -97,7 +98,7 @@ def init(
     display_success(f"Created project '{project_name}' at {project_path}")
 
     if git:
-        from slopcontrol.domains.cad.tools.git_ops import init_git_repo
+        from slopcontrol.domains.code.tools.git_ops import init_git_repo
         result = init_git_repo.invoke({"project_path": str(project_path)})
         display_success(result)
 
@@ -249,7 +250,7 @@ def plan(
 @app.command()
 def verify(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-    domain: str = typer.Option("code", "--domain", "-d", help="Domain: cad, code"),
+    domain: str = typer.Option("code", "--domain", "-d", help="Domain: code"),
 ) -> None:
     """Run verification checks for the current project."""
     project_dir = _project_dir(project)
@@ -361,7 +362,7 @@ def gateway(
 
 
 # ----------------------------------------------------------------------
-# tui
+# tui  —  disabled (CAD-oriented, removed in v0.3)
 # ----------------------------------------------------------------------
 
 
@@ -371,26 +372,9 @@ def tui(
     model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model"),
     provider: str = typer.Option("auto", "--provider", help="LLM provider"),
 ) -> None:
-    """Launch the interactive TUI."""
-    from .tui import run_tui
-
-    project_dir = project or os.environ.get("SLOPCONTROL_PROJECT_DIR", "./projects")
-    project_path = Path(project_dir)
-    if not project_path.exists():
-        display_warning(f"Project '{project_dir}' does not exist.")
-        if typer.confirm("Create it?", default=True):
-            project_path.mkdir(parents=True, exist_ok=True)
-        else:
-            raise typer.Exit(1)
-
-    try:
-        run_tui(project_path=project_path, model=model, provider=provider)
-    except ImportError as e:
-        display_error(f"TUI requires textual: {e}")
-        raise typer.Exit(1)
-    except Exception as e:
-        display_error(f"TUI error: {e}")
-        raise typer.Exit(1)
+    """Launch the interactive TUI. (Disabled — TUI was CAD-oriented and removed)."""
+    display_error("TUI was removed in v0.3.0 (CAD-only). Use 'orchestrate' instead.")
+    raise typer.Exit(1)
 
 
 # ----------------------------------------------------------------------
@@ -437,7 +421,7 @@ def help_cmd() -> None:
         "2. Generate plan:  slopcontrol plan generate --request 'Build a REST API'\n"
         "3. Execute:  slopcontrol orchestrate\n\n"
         "## Core Commands\n"
-        "- init <name>           Create project (cad / code / --multi)\n"
+        "- init <name>           Create project (code / --multi)\n"
         "- orchestrate          Run conductor on slop_control.md\n"
         "- plan (create|show|generate|update) Manage plan\n"
         "- verify               Run domain verifiers\n\n"

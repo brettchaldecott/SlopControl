@@ -29,7 +29,7 @@ build/
 htmlcov/
 .tox/
 
-# CAD exports
+# Generated artifacts
 *.stl
 *.step
 *.glb

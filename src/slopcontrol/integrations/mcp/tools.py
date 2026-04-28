@@ -1,18 +1,19 @@
 """MCP server tools for SlopControl.
 
-This module provides MCP (Model Context Protocol) tool definitions
-for the CAD tools, allowing AI clients to use SlopControl as a tool server.
+Provides MCP (Model Context Protocol) tool definitions for the code domain,
+allowing AI clients to use SlopControl as a tool server for software development.
 """
 
 from typing import Any, Optional
 
-from slopcontrol.domains.cad.tools.cad import CAD_TOOLS
-from slopcontrol.domains.cad.tools.visualization import VISUALIZATION_TOOLS
-from slopcontrol.domains.cad.tools.git_ops import GIT_TOOLS
-from slopcontrol.domains.cad.tools.file_ops import FILE_OPS_TOOLS
+from slopcontrol.domains.code.tools.code import CODE_TOOLS
+from slopcontrol.domains.code.tools.file_ops import FILE_TOOLS
+from slopcontrol.domains.code.tools.git_ops import GIT_TOOLS
+from slopcontrol.domains.code.tools.test_runner import TEST_TOOLS
+from slopcontrol.domains.code.tools.dependency_manager import DEP_TOOLS
 
 
-CAD_MCP_TOOLS = CAD_TOOLS + VISUALIZATION_TOOLS + GIT_TOOLS + FILE_OPS_TOOLS
+MCP_TOOLS = CODE_TOOLS + FILE_TOOLS + GIT_TOOLS + TEST_TOOLS + DEP_TOOLS
 
 
 def get_tool_by_name(name: str):
@@ -24,7 +25,7 @@ def get_tool_by_name(name: str):
     Returns:
         Tool function or None if not found
     """
-    for tool in CAD_MCP_TOOLS:
+    for tool in MCP_TOOLS:
         if tool.name == name:
             return tool
     return None
@@ -37,7 +38,7 @@ def list_all_tools() -> list[dict[str, Any]]:
         List of tool definitions with names and descriptions
     """
     tools = []
-    for tool_func in CAD_MCP_TOOLS:
+    for tool_func in MCP_TOOLS:
         schema = tool_func.args_schema
         tools.append(
             {

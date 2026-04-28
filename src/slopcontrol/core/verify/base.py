@@ -1,6 +1,6 @@
 """Base verification interface for all domain verifiers.
 
-Each domain (CAD, code, etc.) implements a verifier that exposes
+Each domain (code, web, etc.) implements a verifier that exposes
 ``validate()`` and returns structured results.
 """
 

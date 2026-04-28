@@ -31,7 +31,7 @@ class HandoffArtifact:
     """Cross-domain deliverable produced by one agent and consumed by another."""
 
     id: str                        # UUID
-    source_domain: str             # e.g. "cad"
+    source_domain: str             # e.g. "code"
     target_domain: str             # e.g. "code"
     step_index: int                # Which plan step produced this
     deliverable_type: str          # e.g. "geometry-spec", "api-contract"

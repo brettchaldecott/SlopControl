@@ -1,10 +1,10 @@
 # MCP Setup Guide
 
-SlopControl can run as an MCP (Model Context Protocol) server, exposing CAD tools to AI coding assistants like Cursor, Claude Desktop, and other MCP-compatible clients.
+SlopControl can run as an MCP (Model Context Protocol) server, exposing software development tools to AI coding assistants like Cursor, Claude Desktop, and other MCP-compatible clients.
 
 ## What is MCP?
 
-MCP (Model Context Protocol) is a standard protocol that allows AI models to use external tools. By running SlopControl as an MCP server, AI clients can access CAD tools directly.
+MCP (Model Context Protocol) is a standard protocol that allows AI models to use external tools. By running SlopControl as an MCP server, AI clients can access code editing, testing, and verification tools directly.
 
 ## Starting the MCP Server
 
@@ -69,7 +69,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
       "command": "slopcontrol",
       "args": ["mcp", "start"],
       "env": {
-        "OPENAI_API_KEY": "your-api-key"
+        "GROK_API_KEY": "your-api-key"
       }
     }
   }
@@ -95,56 +95,43 @@ MCP support in VS Code Copilot is available in the latest versions. Add to your 
 
 Once connected, the following tools are available:
 
-### Shapes
-- `create_box` - Create a 3D box
-- `create_cylinder` - Create a 3D cylinder
-- `create_sphere` - Create a 3D sphere
+### File Operations
+- `read_code` — Read a file
+- `write_code` — Write a file
+- `edit_code` — Edit a file in-place
+- `delete_file` — Delete a file
+- `list_files` — List files in a directory
+- `find_in_files` — Search for text across files
 
-### Sketches
-- `create_rect` - Create a rectangular sketch
-- `create_circle` - Create a circular sketch
-- `create_ellipse` - Create an elliptical sketch
-- `create_polygon` - Create a polygon sketch
+### Code Quality
+- `run_tests` — Run pytest
+- `run_linter` — Run ruff
+- `run_type_check` — Run mypy
 
-### Operations
-- `extrude_sketch` - Extrude a sketch to 3D
-- `revolve_sketch` - Revolve a sketch
-- `add_fillet` - Add fillet to edges
-- `add_chamfer` - Add chamfer to edges
-- `create_shell` - Create a shell/hollow body
-- `mirror_body` - Mirror a body
-
-### Booleans
-- `union_bodies` - Combine two bodies
-- `cut_body` - Subtract one body from another
-- `intersect_bodies` - Keep only overlapping volume
-
-### Export
-- `export_model` - Export to STEP, STL, or GLB
-- `get_body_info` - Get model dimensions and properties
-
-### Visualization
-- `render_preview` - Render a preview image
-- `display_preview` - Display preview in terminal
-- `get_model_info_detailed` - Get detailed model info
+### Dependencies
+- `add_dependency` — Add a package dependency
+- `remove_dependency` — Remove a package dependency
+- `list_dependencies` — List installed dependencies
 
 ### Git
-- `commit_design` - Commit current design
-- `get_design_history` - View version history
-- `restore_version` - Restore to previous version
+- `init_git_repo` — Initialize a git repository
+- `commit` — Commit changes
+- `get_history` — View commit history
+- `create_branch` — Create a git branch
+- `merge_branch` — Merge a branch
 
 ## Example Usage
 
-After connecting, you can use CAD tools in your AI conversations:
+After connecting, you can use tools in your AI conversations:
 
 ```
-You: Create a 50mm cube and export it as STL
+You: Create a FastAPI app with a single /health endpoint
 
-AI: I'll create a 50mm cube and export it:
-1. create_box(width=50, height=50, depth=50, name="cube")
-2. export_model(body_data=..., format="stl", path="cube.stl")
+AI: I'll create a FastAPI app:
+1. write_code(path="src/main.py", content="from fastapi import FastAPI...")
+2. run_tests() → All tests pass
 
-Done! The cube has been created and exported to cube.stl.
+Done! The FastAPI app has been created at src/main.py.
 ```
 
 ## Troubleshooting
@@ -166,7 +153,7 @@ slopcontrol --version
 
 Set your API keys as environment variables:
 ```bash
-export OPENAI_API_KEY=your-key
+export GROK_API_KEY=your-key
 slopcontrol mcp start
 ```
 
@@ -178,7 +165,7 @@ Or include them in your client config:
       "command": "slopcontrol",
       "args": ["mcp", "start"],
       "env": {
-        "OPENAI_API_KEY": "your-key"
+        "GROK_API_KEY": "your-key"
       }
     }
   }

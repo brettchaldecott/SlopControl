@@ -1,7 +1,6 @@
 """MCP Server for SlopControl.
 
-This module provides an MCP (Model Context Protocol) server implementation
-that exposes SlopControl CAD tools to AI clients like Cursor, Claude Desktop, etc.
+Exposes SlopControl code-domain tools to AI clients via MCP (Model Context Protocol).
 """
 
 import asyncio
@@ -21,20 +20,21 @@ except ImportError:
 
 import structlog
 
-from slopcontrol.domains.cad.tools.cad import CAD_TOOLS
-from slopcontrol.domains.cad.tools.visualization import VISUALIZATION_TOOLS
-from slopcontrol.domains.cad.tools.git_ops import GIT_TOOLS
-from slopcontrol.domains.cad.tools.file_ops import FILE_OPS_TOOLS
+from slopcontrol.domains.code.tools.code import CODE_TOOLS
+from slopcontrol.domains.code.tools.file_ops import FILE_TOOLS
+from slopcontrol.domains.code.tools.git_ops import GIT_TOOLS
+from slopcontrol.domains.code.tools.test_runner import TEST_TOOLS
+from slopcontrol.domains.code.tools.dependency_manager import DEP_TOOLS
 from .tools import get_tool_by_name, list_all_tools
 
 logger = structlog.get_logger()
 
 
-ALL_TOOLS = CAD_TOOLS + VISUALIZATION_TOOLS + GIT_TOOLS + FILE_OPS_TOOLS
+ALL_TOOLS = CODE_TOOLS + FILE_TOOLS + GIT_TOOLS + TEST_TOOLS + DEP_TOOLS
 
 
 class SlopControlMCPServer:
-    """MCP Server for SlopControl CAD tools."""
+    """MCP Server for SlopControl code tools."""
 
     def __init__(self, name: str = "slopcontrol"):
         """Initialize the MCP server.
@@ -176,7 +176,6 @@ def main():
 
     if args.debug:
         import logging
-
         logging.basicConfig(level=logging.DEBUG)
 
     if not MCP_AVAILABLE:

@@ -1,6 +1,6 @@
 """Plan schema – the datamodel for the ``slop_control.md`` artifact.
 
-The plan is the primary artifact.  Code, CAD scripts, and
+The plan is the primary artifact.  Code, configs, and
 verification results are disposable products generated from it.
 """
 
@@ -21,7 +21,7 @@ class DesignPlan:
 
     # ── YAML frontmatter ─────────────────────────────────────────────
     name: str = ""
-    domain: str = "cad"            # "cad" | "code"
+    domain: str = "code"            # "code" | "code"
     version: str = "1.0"
     status: str = "draft"          # draft | in_progress | verified | archived
     created: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -55,7 +55,7 @@ class DesignPlan:
         """Reconstruct from parsed frontmatter dict."""
         return cls(
             name=data.get("name", ""),
-            domain=data.get("domain", "cad"),
+            domain=data.get("domain", "code"),
             version=data.get("version", "1.0"),
             status=data.get("status", "draft"),
             created=data.get("created", datetime.now().isoformat()),

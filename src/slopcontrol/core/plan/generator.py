@@ -63,7 +63,7 @@ class PlanGenerator:
     def generate(
         self,
         request: str,
-        domain: str = "cad",
+        domain: str = "code",
         name: str = "",
         tags: list[str] | None = None,
         agents: list[str] | None = None,

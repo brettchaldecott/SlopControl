@@ -1,6 +1,6 @@
 """Git operations for code domain projects.
 
-Thin wrappers around gitpython, mirroring the CAD-domain git tools
+Thin wrappers around gitpython, mirroring the code-domain git tools
 so that every domain has a consistent VCS interface.
 """
 

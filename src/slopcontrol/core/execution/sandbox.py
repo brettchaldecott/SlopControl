@@ -18,14 +18,11 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Whitelisted modules for CAD scripts
-CAD_SCRIPT_IMPORTS: set[str] = {
-    "build123d",
+# Whitelisted modules for scripts
+DEFAULT_SCRIPT_IMPORTS: set[str] = {
     "math", "json", "os", "sys", "pathlib", "typing",
     "dataclasses", "collections", "itertools", "functools",
-    "cadai.execution.contract",  # Legacy support
     "slopcontrol.core.execution.contract",
-    "slopcontrol.domains.cad.mechanical",  # Gear/Bearing/Motor libs
 }
 
 # Whitelisted modules for code scripts
@@ -42,7 +39,7 @@ DEFAULT_MEMORY_MB: int = 512  # Soft limit
 def run_script(
     script_path: Path | str,
     project_dir: Path | str,
-    domain: str = "cad",
+    domain: str = "code",
     timeout: int = DEFAULT_TIMEOUT,
     memory_mb: int = DEFAULT_MEMORY_MB,
 ) -> dict[str, Any]:
@@ -51,7 +48,7 @@ def run_script(
     Args:
         script_path: Path to the Python script (.py).
         project_dir: Project directory for outputs.
-        domain: ``"cad"`` or ``"code"`` — determines import whitelist.
+        domain: ``"code"`` or ``"code"`` — determines import whitelist.
         timeout: Maximum execution time in seconds.
         memory_mb: Soft memory limit in MiB.
 
@@ -73,7 +70,7 @@ def run_script(
     start_time = time.time()
 
     # Build the whitelisted-path environment
-    whitelist = CAD_SCRIPT_IMPORTS if domain == "cad" else CODE_SCRIPT_IMPORTS
+    whitelist = DEFAULT_SCRIPT_IMPORTS if domain == "code" else CODE_SCRIPT_IMPORTS
     env = os.environ.copy()
     env["SLOPCONTROL_DOMAIN"] = domain
     env["SLOPCONTROL_PROJECT_DIR"] = str(project_dir)
