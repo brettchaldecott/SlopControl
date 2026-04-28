@@ -95,6 +95,17 @@ def init(
     )
     readme.write_text(readme_text)
 
+    # Scaffold a default plan so `plan show` works immediately
+    from slopcontrol.core.plan.schema import DesignPlan
+    plan_path = project_path / _DEFAULT_PLAN
+    default_plan = DesignPlan(
+        name=project_name,
+        domain=domain,
+        requirements=["Describe what you want to build here"],
+        tags=[domain],
+    )
+    render_plan(default_plan, plan_path)
+
     display_success(f"Created project '{project_name}' at {project_path}")
 
     if git:
@@ -362,22 +373,6 @@ def gateway(
 
 
 # ----------------------------------------------------------------------
-# tui  —  disabled (CAD-oriented, removed in v0.3)
-# ----------------------------------------------------------------------
-
-
-@app.command()
-def tui(
-    project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
-    model: Optional[str] = typer.Option(None, "--model", "-m", help="LLM model"),
-    provider: str = typer.Option("auto", "--provider", help="LLM provider"),
-) -> None:
-    """Launch the interactive TUI. (Disabled — TUI was CAD-oriented and removed)."""
-    display_error("TUI was removed in v0.3.0 (CAD-only). Use 'orchestrate' instead.")
-    raise typer.Exit(1)
-
-
-# ----------------------------------------------------------------------
 # list_models / models
 # ----------------------------------------------------------------------
 
@@ -417,7 +412,7 @@ def help_cmd() -> None:
         "Controls AI-generated slop through structured plans, verification loops, "
         "and empirical truth-seeking.\n\n"
         "## Quick Start\n"
-        "1. Initialise:  slopcontrol init my-project --domain code\n"
+        "1. Initialise:  slopcontrol init my-project\n"
         "2. Generate plan:  slopcontrol plan generate --request 'Build a REST API'\n"
         "3. Execute:  slopcontrol orchestrate\n\n"
         "## Core Commands\n"
