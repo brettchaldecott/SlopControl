@@ -40,7 +40,7 @@ class TestPluginRegistry:
     def test_external_adapters(self):
         reg = PluginRegistry()
         assert reg.get_external_adapter("opencode") is not None
-        assert reg.get_external_adapter("claude") is not None
+        assert reg.get_external_adapter("cursor") is not None
         assert reg.get_external_adapter("cursor") is not None
 
 

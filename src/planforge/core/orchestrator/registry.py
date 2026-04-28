@@ -88,15 +88,18 @@ class PluginRegistry:
     # -- External adapters ----------------------------------------------
 
     def get_external_adapter(self, name: str) -> Any | None:
-        """Return an external adapter by name (e.g. ``"opencode"``, ``"claude"``)."""
-        # Lazy import to avoid circular deps
+        """Return an external adapter by name (e.g. ``"opencode"``, ``"cursor"``)."""
+        if name.lower() == "claude":
+            raise RuntimeError(
+                "The Claude adapter has been removed from PlanForge. "
+                "Use 'opencode' or 'cursor' instead."
+            )
+
         from planforge.integrations.opencode import OpenCodeAdapter
-        from planforge.integrations.claude import ClaudeAdapter
         from planforge.integrations.cursor import CursorAdapter
 
         mapping: dict[str, Any] = {
             "opencode": OpenCodeAdapter(),
-            "claude": ClaudeAdapter(),
             "cursor": CursorAdapter(),
         }
         return mapping.get(name)

@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Any, Callable
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 from langchain_ollama import ChatOllama
 
 if TYPE_CHECKING:
@@ -43,16 +42,7 @@ def instantiate_model(route: ProviderRoute, temperature: float = 0) -> BaseChatM
             temperature=temperature,
         )
 
-    if provider == "anthropic":
-        if not route.api_key:
-            raise RuntimeError(f"Anthropic API key missing for model {route.model}")
-        return ChatAnthropic(
-            model=route.model,
-            anthropic_api_key=route.api_key,
-            temperature=temperature,
-        )
-
-    # Default: OpenAI-compatible endpoint
+    # Default: OpenAI-compatible endpoint (includes Grok, OpenAI, Kimi, Qwen, GLM)
     if not route.api_key:
         raise RuntimeError(f"API key missing for provider {provider}, model {route.model}")
     if not route.base_url:

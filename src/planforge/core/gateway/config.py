@@ -34,6 +34,10 @@ class GatewayConfig:
     glm_api_key: str | None = None
     glm_api_url: str = "https://open.bigmodel.cn/api/paas/v4"
 
+    # Grok/XAI
+    grok_api_key: str | None = None
+    grok_api_url: str = "https://api.x.ai/v1"
+
     # OpenCode
     opencode_api_key: str | None = None
     opencode_api_url: str = "https://opencode.ai/zen/v1"
@@ -41,9 +45,6 @@ class GatewayConfig:
     # OpenAI (native)
     openai_api_key: str | None = None
     openai_api_url: str = "https://api.openai.com/v1"
-
-    # Anthropic (special-case, not OpenAI-compatible)
-    anthropic_api_key: str | None = None
 
     # Ollama (local)
     ollama_base_url: str = "http://localhost:11434"
@@ -61,6 +62,8 @@ class GatewayConfig:
             qwen_api_url=os.environ.get("QWEN_API_URL", cls.qwen_api_url),
             glm_api_key=os.environ.get("GLM_API_KEY"),
             glm_api_url=os.environ.get("GLM_API_URL", cls.glm_api_url),
+            grok_api_key=os.environ.get("GROK_API_KEY"),
+            grok_api_url=os.environ.get("GROK_API_URL", cls.grok_api_url),
             opencode_api_key=os.environ.get("OPENCODE_API_KEY"),
             opencode_api_url=os.environ.get("OPENCODE_API_URL", cls.opencode_api_url),
             openai_api_key=os.environ.get("OPENAI_API_KEY"),
@@ -75,6 +78,7 @@ class GatewayConfig:
             "kimi": self.kimi_api_url,
             "qwen": self.qwen_api_url,
             "glm": self.glm_api_url,
+            "grok": self.grok_api_url,
             "opencode": self.opencode_api_url,
             "openai": self.openai_api_url,
         }
@@ -86,6 +90,7 @@ class GatewayConfig:
             "kimi": self.kimi_api_key,
             "qwen": self.qwen_api_key,
             "glm": self.glm_api_key,
+            "grok": self.grok_api_key,
             "opencode": self.opencode_api_key,
             "openai": self.openai_api_key,
             "anthropic": self.anthropic_api_key,

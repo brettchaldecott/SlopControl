@@ -101,12 +101,12 @@ def orchestrate(
     project: Optional[str] = typer.Option(None, "--project", "-p", help="Project directory"),
     section: str = typer.Option("all", "--section", "-s", help="Section to execute"),
     resume: bool = typer.Option(False, "--resume", help="Resume from checkpoint"),
+    budget: float = typer.Option(5.0, "--budget", help="Daily USD budget cap"),
+    compete: bool = typer.Option(False, "--compete", help="Run competing agents per step"),
+    compete_agents: str = typer.Option("", "--compete-agents", help="Comma-separated agent names to compete"),
+    compete_judge: str = typer.Option("hybrid", "--compete-judge", help="Judge strategy: pass_rate|cost|speed|hybrid"),
 ) -> None:
-    """Execute a plan via the Central Conductor.
-
-    Reads the plan, discovers domains, dispatches steps, and runs
-    verification.  Checkpoints state so interrupted runs can resume.
-    """
+    """Execute a plan via the Central Conductor."""
     project_dir = Path(project or os.environ.get("PLANFORGE_PROJECT_DIR", "."))
     plan_path = project_dir / (plan_file or "plan_forge.md")
 
@@ -137,9 +137,18 @@ def orchestrate(
 
     registry = PluginRegistry()
     registry.auto_discover()
-    conductor = Conductor(registry=registry)
+    agent_list = [a.strip() for a in compete_agents.split(",")] if compete_agents else None
+    conductor = Conductor(
+        registry=registry,
+        budget=budget,
+        compete=compete,
+        compete_agents=agent_list,
+        compete_judge=compete_judge,
+    )
 
     display_info("Running conductor...")
+    if compete:
+        display_info(f"Competition mode: {compete_agents or 'auto'}, judge={compete_judge}")
     result = conductor.run_plan(plan=plan_obj, project_dir=project_dir)
 
     # Display results
@@ -308,7 +317,12 @@ def execute(
     if agent == "planforge":
         registry = PluginRegistry()
         registry.auto_discover()
-        conductor = Conductor(registry=registry)
+        conductor = Conductor(
+            registry=registry,
+            budget=budget,
+            compete=compete,
+            compete_judge=compete_judge or "hybrid",
+        )
         result = conductor.run_plan(plan=plan_obj, project_dir=project_dir)
         if result["success"]:
             display_success("PlanForge execution complete")
@@ -316,15 +330,13 @@ def execute(
             display_error("Some steps failed")
             raise typer.Exit(1)
 
-    elif agent in ("opencode", "claude", "cursor"):
+    elif agent in ("opencode", "cursor"):
         from planforge.integrations.opencode import OpenCodeAdapter
-        from planforge.integrations.claude import ClaudeAdapter
         from planforge.integrations.cursor import CursorAdapter
 
         task = "\n".join(plan_obj.requirements)
         adapter = {
             "opencode": OpenCodeAdapter(),
-            "claude": ClaudeAdapter(),
             "cursor": CursorAdapter(),
         }[agent]
         result = adapter.execute(task=task, context_dir=project_dir)

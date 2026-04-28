@@ -92,6 +92,17 @@ def list_available_models(provider: Optional[str] = None) -> dict[str, list[str]
             "gpt-4o-mini",
             "gpt-4-turbo",
         ],
+        "grok": [
+            "grok-3-beta",
+            "grok-3-fast-beta",
+        ],
+        "ollama": [
+            "llama3",
+            "llama3.1",
+            "mistral",
+            "qwen2.5",
+            "kimi-k2.6:cloud",
+        ],
         "anthropic": [
             "claude-sonnet-4-7-20250620",
             "claude-3-5-sonnet-20241022",
