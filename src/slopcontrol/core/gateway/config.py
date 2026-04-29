@@ -18,8 +18,9 @@ class GatewayConfig:
     gateway_port: int = 8000
 
     # Fallback chain: comma-separated "provider:model" entries.
-    # Example: "kimi:moonshot-v1-8k,qwen:qwen-max,glm:glm-4-plus,ollama:llama3"
-    llm_chain: str = "kimi:moonshot-v1-8k,qwen:qwen-max,glm:glm-4-plus,ollama:llama3"
+    # Grok is preferred per user requirements. Followed by strong Chinese
+    # OSS-capable models and local Ollama.
+    llm_chain: str = "grok:grok-3-beta,kimi:moonshot-v1-128k,qwen:qwen-max,ollama:qwen2.5"
 
     # ── Upstream providers ─────────────────────────────────────────────
     # Kimi (Moonshot AI)
@@ -48,6 +49,9 @@ class GatewayConfig:
 
     # Ollama (local)
     ollama_base_url: str = "http://localhost:11434"
+
+    # Keep anthropic for backward compatibility in from_env()
+    anthropic_api_key: str | None = None
 
     @classmethod
     def from_env(cls) -> "GatewayConfig":

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,14 @@ class Conductor:
         self.competition = CompetitionManager(self.registry)
         self.judge = CompetitionJudge(strategy=compete_judge)
         self.truth_db = TruthDB(indexer=kb_indexer, retriever=kb)
+
+        # Closed-loop observer for learning
+        from slopcontrol.core.feedback.observer import ImplementationObserver
+        self.observer = ImplementationObserver(
+            truth_db=self.truth_db,
+            indexer=kb_indexer,
+            retriever=kb,
+        )
 
     # -- Main entry point -----------------------------------------------
 
@@ -125,13 +134,7 @@ class Conductor:
     # -- Phase 2: Dispatch steps ----------------------------------------
 
     def _execute_step(self, idx: int, step: dict[str, Any]) -> None:
-        state = self.state
-        assert state is not None
-        state.mark_step(idx, StepStatus.IN_PROGRESS)
-
-        domain_name, agent_type = self.dispatch.select_agent(step, state.plan)
-
-    def _execute_step(self, idx: int, step: dict[str, Any]) -> None:
+        """Execute a single implementation step (sequential or competition)."""
         state = self.state
         assert state is not None
         state.mark_step(idx, StepStatus.IN_PROGRESS)
@@ -323,6 +326,16 @@ class Conductor:
                 state.verification_results.extend(results)
             except Exception as exc:
                 logger.warning("Verifier %s failed: %s", verifier.__class__.__name__, exc)
+
+        # Closed loop: analyze results and record truths
+        if self.observer and state.verification_results:
+            self.observer.observe(
+                project_dir=state.project_dir,
+                plan_name=state.plan.name,
+                step_index=state.current_step,
+                verification_results=state.verification_results,
+                # cost and duration would be tracked in real implementation
+            )
 
     # -- Phase 4: Persist -----------------------------------------------
 

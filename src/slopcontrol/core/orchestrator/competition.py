@@ -17,6 +17,7 @@ from typing import Any, Optional
 
 from slopcontrol.core.domain_base.agent_factory import create_domain_agent
 from slopcontrol.core.domain_base.plugin import DomainPlugin
+from slopcontrol.core.orchestrator.dispatch import OrchestrationError
 from slopcontrol.core.verify.base import VerificationResult
 
 from .registry import PluginRegistry

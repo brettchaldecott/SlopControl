@@ -46,7 +46,10 @@ def get_model(
 
 
 def _create_gateway_client() -> "BaseChatModel":
-    """Create a LangChain client that always talks to the local gateway."""
+    """Create a LangChain client that always talks to the local gateway.
+
+    The gateway itself is configured (in config.py) to prefer Grok first.
+    """
     from langchain_openai import ChatOpenAI
     from slopcontrol.core.gateway.config import GatewayConfig
 
@@ -72,10 +75,14 @@ def list_available_models(provider: Optional[str] = None) -> dict[str, list[str]
     gateway configuration (``SLOPCONTROL_LLM_CHAIN``).
     """
     all_models = {
+        "grok": [  # Preferred per user requirements
+            "grok-3-beta",
+            "grok-3-fast-beta",
+        ],
         "kimi": [
-            "moonshot-v1-8k",
-            "moonshot-v1-32k",
             "moonshot-v1-128k",
+            "moonshot-v1-32k",
+            "moonshot-v1-8k",
         ],
         "qwen": [
             "qwen-max",
@@ -87,36 +94,23 @@ def list_available_models(provider: Optional[str] = None) -> dict[str, list[str]
             "glm-4-air",
             "glm-4-flash",
         ],
-        "openai": [
-            "gpt-4o",
-            "gpt-4o-mini",
-            "gpt-4-turbo",
-        ],
-        "grok": [
-            "grok-3-beta",
-            "grok-3-fast-beta",
-        ],
-        "ollama": [
-            "llama3",
+        "ollama": [  # Local OSS models
+            "qwen2.5",
             "llama3.1",
             "mistral",
-            "qwen2.5",
-            "kimi-k2.6:cloud",
-        ],
-        "anthropic": [
-            "claude-sonnet-4-7-20250620",
-            "claude-3-5-sonnet-20241022",
-            "claude-3-5-haiku-20241022",
-        ],
-        "ollama": [
             "llama3",
-            "llama3.1",
-            "mistral",
-            "qwen2.5",
             "kimi-k2.6:cloud",
         ],
         "opencode": [
             "big-pickle",
+        ],
+        # Legacy entries kept for compatibility but deprioritized
+        "openai": [
+            "gpt-4o",
+            "gpt-4o-mini",
+        ],
+        "anthropic": [
+            "claude-3-5-sonnet-20241022",
         ],
     }
 

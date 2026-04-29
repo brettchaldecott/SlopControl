@@ -47,9 +47,10 @@ OPENAI_API_KEY=sk-your-key-here
 # Optional: Ollama for local models
 OLLAMA_BASE_URL=http://localhost:11434
 
-# Optional: Default settings
+# Optional: Default settings (Grok prioritized)
 SLOPCONTROL_MODEL=grok:grok-3-beta
 SLOPCONTROL_PROJECT_DIR=./projects
+SLOPCONTROL_LLM_CHAIN=grok:grok-3-beta,kimi:moonshot-v1-128k,qwen:qwen-max,ollama:qwen2.5
 ```
 
 ## Dependencies

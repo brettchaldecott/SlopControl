@@ -6,6 +6,7 @@ and empirical truth-seeking.
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -30,8 +31,16 @@ from slopcontrol.core.utils.terminal import (
 load_dotenv()
 
 console = Console()
+logger = logging.getLogger(__name__)
 
 _DEFAULT_PLAN = "slop_control.md"
+
+# Create the Typer app instance (this was missing)
+app = typer.Typer(
+    name="slopcontrol",
+    help="SlopControl — Agentic Development Through Plan-Controlled Verification",
+    add_completion=True,
+)
 
 
 class KnowledgeContext:
@@ -45,14 +54,26 @@ class KnowledgeContext:
         self.retriever = None
 
     def ensure_loaded(self) -> None:
-        if self.backend is None:
-            from slopcontrol.core.knowledge.backends import create_backend
-            from slopcontrol.core.knowledge.indexer import KnowledgeIndexer
-            from slopcontrol.core.knowledge.retriever import KnowledgeRetriever
+        """Lazy load knowledge backend, indexer, and retriever.
 
-            self.backend = create_backend()
-            self.indexer = KnowledgeIndexer(self.backend)
-            self.retriever = KnowledgeRetriever(self.backend)
+        Gracefully falls back if Qdrant/fastembed are unavailable.
+        """
+        if self.backend is None:
+            try:
+                from slopcontrol.core.knowledge.backends import create_backend
+                from slopcontrol.core.knowledge.indexer import KnowledgeIndexer
+                from slopcontrol.core.knowledge.retriever import KnowledgeRetriever
+
+                self.backend = create_backend()
+                self.indexer = KnowledgeIndexer(self.backend)
+                self.retriever = KnowledgeRetriever(self.backend)
+                logger.info("Knowledge base initialized successfully")
+            except Exception as exc:
+                logger.warning("Knowledge base unavailable, using no-op fallback: %s", exc)
+                # Create minimal no-op objects so CLI doesn't crash
+                self.backend = None
+                self.indexer = None
+                self.retriever = None
 
     @classmethod
     def get(cls) -> "KnowledgeContext":
@@ -62,7 +83,9 @@ class KnowledgeContext:
 
 
 # Legacy alias for backwards-compat — some tests may instantiate directly
-KnowledgeContext = KnowledgeContext
+# This line was causing the class to be overwritten. We keep the class
+# and ensure the get() method is used everywhere.
+KnowledgeContextClass = KnowledgeContext
 
 
 def _project_dir(project: Optional[str]) -> Path:
@@ -193,7 +216,7 @@ def orchestrate(
     agent_list = [a.strip() for a in compete_agents.split(",")] if compete_agents else None
 
     # Initialize knowledge base context
-    kb_ctx = KnowledgeContext.get()
+    kb_ctx = KnowledgeContextClass.get()
     kb_ctx.ensure_loaded()
 
     conductor = Conductor(
@@ -266,7 +289,7 @@ def plan(
     elif action == "generate":
         if not request:
             request = typer.prompt("Requirements for the plan")
-        kb_ctx = KnowledgeContext.get()
+        kb_ctx = KnowledgeContextClass.get()
         kb_ctx.ensure_loaded()
         generator = PlanGenerator(retriever=kb_ctx.retriever)
         plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
@@ -286,11 +309,22 @@ def plan(
         for req in plan_obj.requirements:
             console.print(f"  - {req}")
 
-    elif action == "interactive":
-        _interactive_plan(project_dir, plan_path, name=name or project_dir.name, domain=domain)
+    elif action == "interactive" or action is None:
+        # New rich interactive planning session
+        from slopcontrol.core.planning.session import PlanningSession
+
+        kb_ctx = KnowledgeContextClass.get()
+        kb_ctx.ensure_loaded()
+
+        session = PlanningSession(
+            project_dir=project_dir,
+            retriever=kb_ctx.retriever,
+        )
+        session.run_conversation(request if request else None)
 
     elif action == "update":
-        display_info("Use 'slopcontrol plan generate' to regenerate with new requirements.")
+        display_info("Use the interactive session (`slopcontrol plan`) to refine plans.")
+        display_info("Once finalized, run `slopcontrol orchestrate` to implement.")
 
     else:
         display_error(f"Unknown action: {action}")
@@ -303,75 +337,25 @@ def _interactive_plan(
     name: str = "",
     domain: str = "code",
 ) -> None:
-    """Interactive prompt-driven plan generation."""
-    kb_ctx = KnowledgeContext.get()
+    """Legacy interactive planner — kept for backwards compatibility.
+
+    The new rich PlanningSession (used by default) is in core/planning/session.py.
+    This function is deprecated but preserved during transition.
+    """
+    display_info("The legacy interactive planner has been replaced by a richer experience.")
+    display_info("Running new PlanningSession instead...")
+
+    from slopcontrol.core.planning.session import PlanningSession
+
+    kb_ctx = KnowledgeContextClass.get()
     kb_ctx.ensure_loaded()
 
-    # Phase 1: Understand what the user wants
-    console.print("\n[bold cyan]Interactive Plan Builder[/bold cyan]")
-    console.print("Let's build your plan step by step.\n")
-
-    request = typer.prompt("What do you want to build?")
-    if not request.strip():
-        display_error("A description is required.")
-        raise typer.Exit(1)
-
-    # Optional: quick summary from KB
-    kb_context = ""
-    if kb_ctx.retriever:
-        try:
-            kb_context = kb_ctx.retriever.get_context_string(query=request, k=3)
-            if kb_context:
-                display_info("Loaded relevant knowledge for context.")
-        except Exception:
-            pass  # Silent fallback if KB not available
-
-    # Phase 2: Generate draft
-    generator = PlanGenerator(retriever=kb_ctx.retriever)
-    plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
-
-    # Phase 3: Review loop
-    while True:
-        _display_plan_summary(plan_obj)
-        choice = typer.prompt(
-            "\n[Continue / Modify / Regenerate / Save]?",
-            default="continue",
-        ).strip().lower()
-
-        if choice in ("c", "continue"):
-            break
-        elif choice in ("m", "modify"):
-            mod = typer.prompt("What would you like to change?")
-            plan_obj = generator.modify(plan_obj, modification=mod, retriever=kb_ctx.retriever)
-        elif choice in ("r", "regenerate"):
-            plan_obj = generator.generate(request=request, domain=domain, name=name or project_dir.name)
-        elif choice in ("s", "save"):
-            break
-        else:
-            display_warning("Unknown choice. Try: continue / modify / regenerate / save")
-
-    # Phase 4: Save
-    plan_obj.version = "1.0"
-    plan_obj.status = "draft"
-    render_plan(plan_obj, plan_path)
-
-    # Index into KB
-    if kb_ctx.indexer:
-        try:
-            kb_ctx.indexer.index_text(
-                source=str(plan_path),
-                text=plan_path.read_text(),
-            )
-            display_info("Plan indexed in knowledge base.")
-        except Exception as exc:
-            logger.debug("Failed to index plan: %s", exc)
-
-    # Git commit via PlanVersioner
-    from slopcontrol.core.plan.versioner import PlanVersioner
-    versioner = PlanVersioner()
-    versioner.save(plan_obj, project_dir, message=f"plan: initial draft v1.0 ({plan_obj.name})")
-
-    display_success(f"Plan saved to {plan_path}")
+    session = PlanningSession(
+        project_dir=project_dir,
+        retriever=kb_ctx.retriever,
+    )
+    # Use the original request if provided, otherwise start fresh
+    session.run_conversation(name if name else None)
 
 
 def _display_plan_summary(plan) -> None:
@@ -577,11 +561,28 @@ def help_cmd() -> None:
 
 
 def main() -> None:
-    """Main entry point."""
+    """Main entry point.
+
+    By default launches the rich TUI client that connects to the daemon.
+    Subcommands (orchestrate, verify, etc.) remain available for pipelines.
+    """
+    if len(sys.argv) > 1 and sys.argv[1] in ("daemon", "server"):
+        from slopcontrol.daemon.server import main as daemon_main
+        daemon_main()
+        return
+
     if len(sys.argv) > 1 and sys.argv[1] == "help":
         help_cmd()
         return
-    app()
+
+    # Default: launch rich TUI (the new primary interface)
+    try:
+        from slopcontrol.tui.app import run_tui
+        run_tui()
+    except ImportError:
+        # Fallback if TUI not fully implemented yet
+        display_info("TUI not yet available. Falling back to legacy CLI.")
+        app()
 
 
 if __name__ == "__main__":

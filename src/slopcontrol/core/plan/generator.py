@@ -88,11 +88,24 @@ class PlanGenerator:
         tags: list[str] | None = None,
         agents: list[str] | None = None,
     ) -> DesignPlan:
-        """Generate a new DesignPlan from a user request."""
-        # 1. Build KB context
+        """Generate a new DesignPlan from a user request.
+
+        Gracefully handles missing retriever (KB unavailable).
+        """
+        # 1. Build KB context (including learned truths)
         kb_context = ""
         if self.retriever:
-            kb_context = self.retriever.get_context_string(query=request, k=3)
+            try:
+                kb_context = self.retriever.get_context_string(query=request, k=5)
+                # Also pull historical lessons if TruthDB is available
+                from slopcontrol.core.orchestrator.truth_db import TruthDB
+                truth_db = TruthDB(retriever=self.retriever)
+                lessons = truth_db.get_lessons(domain=domain, k=3)
+                if lessons and "No historical" not in lessons:
+                    kb_context = f"Historical lessons:\n{lessons}\n\n{kb_context}"
+            except Exception as exc:  # KB may be in no-op fallback state
+                logger.warning("Knowledge retriever unavailable: %s", exc)
+                kb_context = "(knowledge base unavailable)"
 
         # 2. Call LLM via gateway
         prompt = PLAN_GENERATION_PROMPT.format(
@@ -147,7 +160,11 @@ class PlanGenerator:
         kb_context = ""
         if retriever or self.retriever:
             r = retriever or self.retriever
-            kb_context = r.get_context_string(query=modification, k=2)
+            try:
+                kb_context = r.get_context_string(query=modification, k=2)
+            except Exception as exc:  # KB may be in no-op fallback state
+                logger.warning("Knowledge retriever unavailable during modify: %s", exc)
+                kb_context = "(knowledge base unavailable)"
 
         # Serialize current plan for the prompt
         from dataclasses import asdict

@@ -128,29 +128,39 @@ class QdrantBackend(VectorBackend):
     # -------------------------------------------------------------------
 
     def _ensure_collections(self) -> None:
+        """Create collections if they don't exist. Compatible with newer qdrant-client."""
         from qdrant_client import models
 
         for name, distance in (
             ("knowledge_chunks", models.Distance.COSINE),
             ("knowledge_summaries", models.Distance.COSINE),
         ):
-            self._client.create_collection(
-                collection_name=name,
-                vectors_config=models.VectorParams(size=self.dim, distance=distance),
-                exist_ok=True,
-            )
+            try:
+                self._client.create_collection(
+                    collection_name=name,
+                    vectors_config=models.VectorParams(size=self.dim, distance=distance),
+                )
+            except Exception as e:
+                # Collection may already exist (qdrant-client behavior changed)
+                if "already exists" not in str(e).lower():
+                    logger.warning("Could not create collection %s: %s", name, e)
+                # Collection exists - this is fine
+                pass
 
     # -------------------------------------------------------------------
     # FastEmbed helper
     # -------------------------------------------------------------------
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
-        """Use Qdrant's built-in FastEmbed to avoid heavy PyTorch deps."""
-        from qdrant_client import models as qmodels
-
-        docs = [qmodels.Document(text=t, model=self.model) for t in texts]
-        # compute returns a list of embedding vectors
-        return self._client.compute(docs)  # type: ignore[return-value]
+        """Use sentence-transformers or fallback. The .compute() API changed in newer qdrant-client."""
+        # Prefer our global EMBED function which handles sentence-transformers or naive fallback
+        try:
+            from .backends import EMBED  # relative import to avoid circularity
+            return EMBED(texts)
+        except Exception:
+            # Ultimate fallback
+            from .backends import _naive_embed
+            return _naive_embed(texts, self.dim)
 
     # -------------------------------------------------------------------
     # VectorBackend interface

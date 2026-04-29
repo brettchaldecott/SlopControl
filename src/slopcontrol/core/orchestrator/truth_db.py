@@ -140,6 +140,7 @@ class TruthDB:
         """Return ranked list of (agent, expected_pass_rate).
 
         If *budget* is given, filters to records whose average cost ≤ budget.
+        This is used by PlanningSession and Conductor to make better choices.
         """
         records = self.query(task_type, k=k)
 
@@ -160,6 +161,24 @@ class TruthDB:
 
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored
+
+    def get_lessons(self, domain: str = "code", k: int = 5) -> str:
+        """Return human-readable lessons learned from past implementations.
+
+        Used by PlanningSession to provide context during drafting.
+        """
+        if not self.retriever:
+            return "No historical data yet."
+
+        try:
+            context = self.retriever.get_context_string(
+                query=f"lessons learned from {domain} implementations",
+                k=k,
+                include_summaries=True,
+            )
+            return context if context else "No prior lessons available."
+        except Exception:
+            return "Learning system active but no data indexed yet."
 
     # -- Helpers ---------------------------------------------------------
 

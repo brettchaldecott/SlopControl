@@ -99,11 +99,11 @@ slopcontrol orchestrate --compete --budget 2.00 --compete-judge hybrid
 GROK_API_KEY=xai-...
 OPENAI_API_KEY=sk-...
 
-# Defaults
+# Defaults (Grok-first as requested)
 SLOPCONTROL_MODEL=grok:grok-3-beta
 SLOPCONTROL_PROJECT_DIR=./projects
 SLOPCONTROL_GATEWAY_PORT=8000
-SLOPCONTROL_LLM_CHAIN=grok:grok-3-beta,openai:gpt-4o,ollama:llama3
+SLOPCONTROL_LLM_CHAIN=grok:grok-3-beta,kimi:moonshot-v1-128k,qwen:qwen-max,ollama:qwen2.5
 
 # Budget control
 SLOPCONTROL_DAILY_BUDGET=5.0
